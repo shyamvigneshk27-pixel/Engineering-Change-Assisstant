@@ -1,0 +1,46 @@
+{
+  "ASM-001": {
+    "name": "Gate Valve Assembly - 6 inch Class 900",
+    "parts": ["PART-001", "PART-002", "PART-004"],
+    "parent_assemblies": ["ASM-TOP"],
+    "child_assemblies": ["ASM-002"],
+    "bom_id": "BOM-001",
+    "test_procedure_id": "TEST-001",
+    "criticality": "safety_critical",
+    "interface_constraints": {
+      "PART-001_to_PART-002": "OD of PART-002 must match OD of PART-001 ±0.1mm for gasket sealing"
+    }
+  },
+  "ASM-002": {
+    "name": "Actuator Sub-Assembly",
+    "parts": ["PART-003", "PART-004"],
+    "parent_assemblies": ["ASM-001"],
+    "child_assemblies": [],
+    "bom_id": "BOM-002",
+    "test_procedure_id": "TEST-002",
+    "criticality": "functional",
+    "interface_constraints": {
+      "PART-003_to_PART-004": "Stem diameter + 0.025mm clearance = Bonnet bore"
+    }
+  },
+  "ASM-003": {
+    "name": "Bypass Valve Assembly - 2 inch",
+    "parts": ["PART-001"],
+    "parent_assemblies": ["ASM-TOP"],
+    "child_assemblies": [],
+    "bom_id": "BOM-003",
+    "test_procedure_id": "TEST-003",
+    "criticality": "operational",
+    "interface_constraints": {}
+  },
+  "ASM-TOP": {
+    "name": "Subsea Wellhead Control Module",
+    "parts": [],
+    "parent_assemblies": [],
+    "child_assemblies": ["ASM-001", "ASM-003"],
+    "bom_id": "BOM-TOP",
+    "test_procedure_id": "TEST-TOP",
+    "criticality": "safety_critical",
+    "interface_constraints": {}
+  }
+}

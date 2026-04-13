@@ -1,0 +1,29 @@
+{
+  "BOM-001": {
+    "assembly_id": "ASM-001",
+    "items": [
+      {"part_id": "PART-001", "qty": 1, "unit_cost_usd": 420.0},
+      {"part_id": "PART-002", "qty": 2, "unit_cost_usd": 85.0},
+      {"part_id": "PART-004", "qty": 1, "unit_cost_usd": 275.0}
+    ],
+    "total_cost_usd": 1175.0,
+    "total_weight_kg": 13.8
+  },
+  "BOM-002": {
+    "assembly_id": "ASM-002",
+    "items": [
+      {"part_id": "PART-003", "qty": 1, "unit_cost_usd": 310.0},
+      {"part_id": "PART-004", "qty": 1, "unit_cost_usd": 275.0}
+    ],
+    "total_cost_usd": 585.0,
+    "total_weight_kg": 4.4
+  },
+  "BOM-003": {
+    "assembly_id": "ASM-003",
+    "items": [
+      {"part_id": "PART-001", "qty": 1, "unit_cost_usd": 420.0}
+    ],
+    "total_cost_usd": 420.0,
+    "total_weight_kg": 8.4
+  }
+}

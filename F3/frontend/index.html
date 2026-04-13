@@ -1,0 +1,1794 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECA — Engineering Change Orchestrator</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        :root {
+            --bg: #080d14;
+            --surface: #0f1520;
+            --surface2: #161d2a;
+            --border: #1c2840;
+            --accent: #00d4aa;
+            --accent-dim: #007a63;
+            --blue: #3b9eff;
+            --amber: #f0a500;
+            --red: #e04040;
+            --green: #36d966;
+            --purple: #a370f7;
+            --text: #c8d8e8;
+            --text-dim: #5a7a9a;
+            --text-bright: #e8f4ff;
+            --mono: 'IBM Plex Mono', monospace;
+            --sans: 'IBM Plex Sans', sans-serif;
+        }
+
+        body {
+            font-family: var(--sans);
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 28px;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface);
+            position: sticky;
+            top: 0;
+            z-index: 100
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px
+        }
+
+        .logo-badge {
+            font-family: var(--mono);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--accent);
+            border: 1px solid var(--accent-dim);
+            padding: 5px 10px;
+            border-radius: 4px;
+            letter-spacing: 2px
+        }
+
+        .logo h1 {
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-bright)
+        }
+
+        .logo span {
+            font-size: 11px;
+            color: var(--text-dim);
+            display: block;
+            letter-spacing: 1px
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 11px;
+            color: var(--text-dim);
+            font-family: var(--mono)
+        }
+
+        .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px
+        }
+
+        .dot.on {
+            background: var(--green);
+            animation: pulse 2s infinite
+        }
+
+        .dot.off {
+            background: var(--red)
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(54, 217, 102, .4)
+            }
+
+            50% {
+                box-shadow: 0 0 0 6px rgba(54, 217, 102, 0)
+            }
+        }
+
+        /* Main */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px 28px
+        }
+
+        /* Input Section */
+        .input-section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 24px;
+            margin-bottom: 24px
+        }
+
+        .input-label {
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: var(--accent);
+            text-transform: uppercase;
+            margin-bottom: 12px
+        }
+
+        .input-row {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start
+        }
+
+        textarea {
+            flex: 1;
+            background: var(--bg);
+            color: var(--text-bright);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 14px;
+            font-family: var(--mono);
+            font-size: 13px;
+            resize: vertical;
+            min-height: 80px;
+            transition: border-color .2s
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent)
+        }
+
+        textarea::placeholder {
+            color: var(--text-dim)
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--surface2);
+            color: var(--text);
+            cursor: pointer;
+            font-family: var(--sans);
+            font-weight: 500;
+            font-size: 13px;
+            transition: all .2s;
+            white-space: nowrap
+        }
+
+        .btn:hover {
+            background: #1e2d3d
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: var(--bg);
+            border-color: var(--accent);
+            font-weight: 600
+        }
+
+        .btn-primary:hover {
+            background: #00b893
+        }
+
+        .btn-voice {
+            background: transparent;
+            border-color: var(--amber);
+            color: var(--amber);
+            font-size: 18px;
+            padding: 10px 14px
+        }
+
+        .btn-voice.recording {
+            background: rgba(224, 64, 64, .15);
+            border-color: var(--red);
+            color: var(--red);
+            animation: pulse-red 1s infinite
+        }
+
+        @keyframes pulse-red {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(224, 64, 64, .3)
+            }
+
+            50% {
+                box-shadow: 0 0 0 8px rgba(224, 64, 64, 0)
+            }
+        }
+
+        .examples {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px
+        }
+
+        .chip {
+            font-size: 11px;
+            font-family: var(--mono);
+            padding: 5px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            background: var(--surface2);
+            cursor: pointer;
+            transition: all .2s
+        }
+
+        .chip:hover {
+            border-color: var(--accent);
+            color: var(--text)
+        }
+
+        /* Agent Pipeline Tracker */
+        .pipeline {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            display: none
+        }
+
+        .pipeline.active {
+            display: block
+        }
+
+        .pipeline-title {
+            font-size: 11px;
+            letter-spacing: 2px;
+            color: var(--accent);
+            text-transform: uppercase;
+            margin-bottom: 16px
+        }
+
+        .agent-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border)
+        }
+
+        .agent-row:last-child {
+            border-bottom: none
+        }
+
+        .agent-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--mono);
+            font-size: 12px;
+            font-weight: 600;
+            border: 2px solid var(--border);
+            color: var(--text-dim);
+            flex-shrink: 0
+        }
+
+        .agent-num.running {
+            border-color: var(--amber);
+            color: var(--amber);
+            animation: spin 1.5s linear infinite
+        }
+
+        .agent-num.done {
+            border-color: var(--green);
+            color: var(--green);
+            background: rgba(54, 217, 102, .1)
+        }
+
+        .agent-num.error {
+            border-color: var(--red);
+            color: var(--red)
+        }
+
+        @keyframes spin {
+            0% {
+                box-shadow: 0 0 0 0 rgba(240, 165, 0, .3)
+            }
+
+            50% {
+                box-shadow: 0 0 0 6px rgba(240, 165, 0, 0)
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(240, 165, 0, .3)
+            }
+        }
+
+        .agent-info {
+            flex: 1
+        }
+
+        .agent-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-bright)
+        }
+
+        .agent-status {
+            font-size: 11px;
+            color: var(--text-dim);
+            font-family: var(--mono);
+            margin-top: 2px
+        }
+
+        .agent-time {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--text-dim);
+            min-width: 50px;
+            text-align: right
+        }
+
+        /* Error */
+        .error-box {
+            display: none;
+            background: rgba(224, 64, 64, .1);
+            border: 1px solid var(--red);
+            color: #fca5a5;
+            padding: 14px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-family: var(--mono);
+            font-size: 12px
+        }
+
+        .error-box.show {
+            display: block
+        }
+
+        /* Results Grid */
+        .results {
+            display: none
+        }
+
+        .results.show {
+            display: block
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px
+        }
+
+        .metric {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px 18px
+        }
+
+        .metric-label {
+            font-size: 10px;
+            color: var(--text-dim);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 6px
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: 500;
+            font-family: var(--mono);
+            color: var(--text-bright);
+            line-height: 1
+        }
+
+        .metric-sub {
+            font-size: 10px;
+            color: var(--text-dim);
+            margin-top: 4px
+        }
+
+        /* Cards */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow: hidden
+        }
+
+        .card-header {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between
+        }
+
+        .card-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-bright);
+            letter-spacing: .5px
+        }
+
+        .card-body {
+            padding: 16px 20px
+        }
+
+        .badge {
+            font-size: 11px;
+            font-family: var(--mono);
+            padding: 3px 10px;
+            border-radius: 4px;
+            letter-spacing: .5px
+        }
+
+        .badge-major {
+            background: rgba(224, 64, 64, .12);
+            color: #ff8080;
+            border: 1px solid rgba(224, 64, 64, .3)
+        }
+
+        .badge-minor {
+            background: rgba(54, 217, 102, .1);
+            color: var(--green);
+            border: 1px solid rgba(54, 217, 102, .25)
+        }
+
+        .badge-pass {
+            background: rgba(54, 217, 102, .1);
+            color: var(--green);
+            border: 1px solid rgba(54, 217, 102, .25)
+        }
+
+        .badge-cad {
+            background: rgba(0, 212, 170, .08);
+            color: var(--accent);
+            border: 1px solid var(--accent-dim)
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            font-family: var(--mono)
+        }
+
+        th {
+            padding: 10px 16px;
+            text-align: left;
+            font-size: 10px;
+            letter-spacing: 1px;
+            color: var(--text-dim);
+            border-bottom: 1px solid var(--border);
+            background: var(--surface2);
+            font-weight: 500;
+            text-transform: uppercase
+        }
+
+        td {
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text)
+        }
+
+        tr:last-child td {
+            border-bottom: none
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, .02)
+        }
+
+        tr.safety td {
+            background: rgba(240, 165, 0, .05)
+        }
+
+        /* CAD Render */
+        .render-img {
+            max-width: 100%;
+            border-radius: 6px;
+            margin-top: 8px
+        }
+
+        /* Effort bars */
+        .effort-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0
+        }
+
+        .effort-lbl {
+            font-size: 11px;
+            font-family: var(--mono);
+            color: var(--text-dim);
+            width: 200px;
+            flex-shrink: 0
+        }
+
+        .effort-track {
+            flex: 1;
+            height: 6px;
+            background: var(--surface2);
+            border-radius: 3px;
+            overflow: hidden
+        }
+
+        .effort-fill {
+            height: 100%;
+            border-radius: 3px;
+            background: linear-gradient(90deg, var(--accent-dim), var(--accent));
+            transition: width .8s ease
+        }
+
+        .effort-hrs {
+            font-size: 11px;
+            font-family: var(--mono);
+            color: var(--text);
+            width: 40px;
+            text-align: right
+        }
+
+        /* Narrative */
+        .narrative {
+            font-style: italic;
+            color: var(--blue);
+            line-height: 1.7;
+            border-left: 3px solid var(--blue);
+            padding-left: 16px;
+            font-size: 13px
+        }
+
+        /* Buttons row */
+        .action-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 24px
+        }
+
+        /* Safety block */
+        .safety-block {
+            background: rgba(224, 64, 64, .08);
+            border: 1px solid rgba(224, 64, 64, .3);
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 20px
+        }
+
+        .safety-block h3 {
+            color: #ff8080;
+            margin-bottom: 8px;
+            font-size: 14px
+        }
+
+        /* Validation check */
+        .check-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border)
+        }
+
+        .check-item:last-child {
+            border-bottom: none
+        }
+
+        .check-icon {
+            font-size: 16px
+        }
+
+        /* Footer */
+        footer {
+            padding: 16px 28px;
+            border-top: 1px solid var(--border);
+            font-size: 11px;
+            color: var(--text-dim);
+            display: flex;
+            justify-content: space-between;
+            font-family: var(--mono);
+            background: var(--surface)
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        .fade-in {
+            animation: fadeUp .4s ease forwards
+        }
+
+        /* API Exhausted Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(8, 13, 20, 0.85);
+            backdrop-filter: blur(6px);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.show {
+            display: flex;
+        }
+        .modal-box {
+            background: var(--surface);
+            border: 1px solid var(--red);
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 440px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 0 60px rgba(224, 64, 64, 0.15);
+            animation: fadeUp 0.3s ease;
+        }
+        .modal-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: rgba(224, 64, 64, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 28px;
+        }
+        .modal-title {
+            font-family: var(--sans);
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-bright);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .modal-msg {
+            font-size: 13px;
+            color: var(--text-dim);
+            line-height: 1.7;
+            margin-bottom: 24px;
+        }
+        .modal-cooldown {
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--red);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+            opacity: 0.7;
+        }
+        .modal-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--red);
+            color: var(--bg);
+            border: none;
+            border-radius: 6px;
+            font-family: var(--sans);
+            font-weight: 700;
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .modal-btn:hover {
+            background: #c03030;
+        }
+        /* ========== VERSION HISTORY PANEL ========== */
+        .history-panel {
+            display: none;
+            margin-bottom: 24px
+        }
+        .history-panel.show { display: block }
+
+        .vc-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px
+        }
+        .vc-title {
+            font-size: 11px;
+            letter-spacing: 3px;
+            color: var(--accent);
+            text-transform: uppercase
+        }
+        .vc-refresh {
+            font-size: 11px;
+            font-family: var(--mono);
+            color: var(--text-dim);
+            cursor: pointer;
+            border: 1px solid var(--border);
+            padding: 5px 12px;
+            border-radius: 4px;
+            background: var(--surface2);
+            transition: all .2s
+        }
+        .vc-refresh:hover { color: var(--accent); border-color: var(--accent) }
+
+        .vc-timeline {
+            position: relative;
+            padding-left: 32px
+        }
+        .vc-timeline::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: var(--border)
+        }
+        .vc-entry {
+            position: relative;
+            margin-bottom: 14px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px 18px;
+            transition: border-color .2s, box-shadow .2s;
+            cursor: pointer
+        }
+        .vc-entry:hover {
+            border-color: var(--accent-dim);
+            box-shadow: 0 0 0 1px var(--accent-dim)
+        }
+        .vc-entry.major-rev {
+            border-left: 3px solid var(--red)
+        }
+        .vc-entry.minor-rev {
+            border-left: 3px solid var(--green)
+        }
+        .vc-dot {
+            position: absolute;
+            left: -26px;
+            top: 18px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid var(--bg);
+            background: var(--accent)
+        }
+        .vc-dot.major { background: var(--red) }
+        .vc-dot.minor { background: var(--green) }
+
+        .vc-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px
+        }
+        .vc-ver {
+            font-family: var(--mono);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--accent);
+            background: rgba(0,212,170,.1);
+            padding: 2px 9px;
+            border-radius: 4px;
+            border: 1px solid var(--accent-dim)
+        }
+        .vc-label {
+            font-family: var(--mono);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px
+        }
+        .vc-time {
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--text-dim);
+            margin-left: auto
+        }
+        .vc-prompt {
+            font-size: 12px;
+            color: var(--text-bright);
+            margin-bottom: 10px;
+            font-style: italic;
+            border-left: 2px solid var(--blue);
+            padding-left: 10px
+        }
+        .vc-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px
+        }
+        .vc-stat {
+            font-family: var(--mono);
+            font-size: 10px;
+            padding: 3px 9px;
+            border-radius: 3px;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            background: var(--surface2)
+        }
+        .vc-stat.highlight {
+            color: var(--amber);
+            border-color: rgba(240,165,0,.3)
+        }
+        .vc-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px
+        }
+        .vc-btn {
+            font-family: var(--mono);
+            font-size: 10px;
+            padding: 4px 12px;
+            border-radius: 3px;
+            border: 1px solid var(--border);
+            background: var(--surface2);
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: all .2s
+        }
+        .vc-btn:hover { color: var(--accent); border-color: var(--accent) }
+        .vc-btn.pdf { color: var(--blue); border-color: rgba(59,154,255,.3) }
+        .vc-btn.pdf:hover { background: rgba(59,154,255,.08) }
+
+        .vc-diff {
+            display: none;
+            margin-top: 12px;
+            font-family: var(--mono);
+            font-size: 11px
+        }
+        .vc-diff.show { display: block }
+        .vc-diff table {
+            font-size: 11px
+        }
+
+        .vc-empty {
+            text-align: center;
+            padding: 48px;
+            color: var(--text-dim);
+            font-family: var(--mono);
+            font-size: 12px
+        }
+
+        /* Nav pill */
+        .nav-pill {
+            font-family: var(--mono);
+            font-size: 11px;
+            padding: 6px 14px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            background: var(--surface2);
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: all .2s;
+            letter-spacing: 1px
+        }
+        .nav-pill:hover, .nav-pill.active {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(0,212,170,.08)
+        }
+        .vc-loading {
+            text-align: center;
+            padding: 32px;
+            color: var(--text-dim);
+            font-family: var(--mono);
+            font-size: 11px;
+            letter-spacing: 2px
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">
+            <div class="logo-badge">ECA</div>
+            <div>
+                <h1>Engineering Change Orchestrator</h1>
+                <span>5-AGENT PIPELINE · STARK-X · SLB HACKATHON 2026</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <span><span class="dot" id="dot-api"></span>Gemini AI</span>
+            <span><span class="dot" id="dot-cad"></span>FreeCAD</span>
+            <span id="agent-count">5 Agents</span>
+            <button class="nav-pill" id="navAnalyze" onclick="showTab('analyze')" style="margin-left:8px">⚡ ANALYZE</button>
+            <button class="nav-pill" id="navHistory" onclick="showTab('history')">📋 HISTORY</button>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- Input Section -->
+        <div class="input-section fade-in">
+            <div class="input-label">Engineering Work Request (EWR) — Type or Speak</div>
+            <div class="input-row">
+                <textarea id="nlInput" placeholder="Describe the engineering change in plain English..."></textarea>
+                <button class="btn btn-voice" id="voiceBtn" onclick="toggleVoice()" title="Voice Input">🎤</button>
+                <button class="btn btn-primary" onclick="runPipeline()">⚡ Run Pipeline</button>
+            </div>
+            <div style="margin-top:10px;display:flex;gap:10px">
+                <button class="btn" onclick="previewModel()"
+                    style="background:rgba(0,212,170,.1);border:1px solid var(--accent);color:var(--accent);font-size:12px;padding:8px 16px">🔍
+                    Preview Base Model in FreeCAD</button>
+            </div>
+            <div class="examples">
+                <span class="chip" onclick="fillEx(0)">Reduce wall thickness of Valve Body by 2mm</span>
+                <span class="chip" onclick="fillEx(1)">Change End Cap material from SS304 to SS316L</span>
+                <span class="chip" onclick="fillEx(2)">Increase Gate Stem diameter to 28mm</span>
+                <span class="chip" onclick="fillEx(3)">Update marking on Valve Body drawing</span>
+            </div>
+        </div>
+
+        <!-- Pipeline Tracker -->
+        <div class="pipeline" id="pipeline">
+            <div class="pipeline-title">5-Agent Orchestration Pipeline</div>
+            <div class="agent-row" id="ar1">
+                <div class="agent-num" id="an1">1</div>
+                <div class="agent-info">
+                    <div class="agent-name">INTERPRETER</div>
+                    <div class="agent-status" id="as1">Waiting...</div>
+                </div>
+                <div class="agent-time" id="at1">—</div>
+            </div>
+            <div class="agent-row" id="ar2">
+                <div class="agent-num" id="an2">2</div>
+                <div class="agent-info">
+                    <div class="agent-name">IMPACT TRACER</div>
+                    <div class="agent-status" id="as2">Waiting...</div>
+                </div>
+                <div class="agent-time" id="at2">—</div>
+            </div>
+            <div class="agent-row" id="ar3">
+                <div class="agent-num" id="an3">3</div>
+                <div class="agent-info">
+                    <div class="agent-name">CAD EXECUTOR</div>
+                    <div class="agent-status" id="as3">Waiting...</div>
+                </div>
+                <div class="agent-time" id="at3">—</div>
+            </div>
+            <div class="agent-row" id="ar4">
+                <div class="agent-num" id="an4">4</div>
+                <div class="agent-info">
+                    <div class="agent-name">VALIDATOR</div>
+                    <div class="agent-status" id="as4">Waiting...</div>
+                </div>
+                <div class="agent-time" id="at4">—</div>
+            </div>
+            <div class="agent-row" id="ar5">
+                <div class="agent-num" id="an5">5</div>
+                <div class="agent-info">
+                    <div class="agent-name">REPORTER</div>
+                    <div class="agent-status" id="as5">Waiting...</div>
+                </div>
+                <div class="agent-time" id="at5">—</div>
+            </div>
+        </div>
+
+        <div class="error-box" id="errorBox"></div>
+
+        <!-- Results -->
+        <div class="results" id="results">
+
+            <div class="action-row">
+                <button class="btn btn-primary" id="btnReport" onclick="downloadReport()">📄 Download PDF
+                    Report</button>
+                <button class="btn" id="btnStep" onclick="downloadStep()" style="display:none">📦 Download STEP
+                    File</button>
+                <button class="btn" onclick="previewModified()"
+                    style="background:rgba(0,212,170,.1);border:1px solid var(--accent);color:var(--accent)">🔍 View
+                    Modified Model in FreeCAD</button>
+            </div>
+
+            <!-- Metrics -->
+            <div class="metrics-grid fade-in">
+                <div class="metric" style="border-top:3px solid var(--blue)">
+                    <div class="metric-label">Parts Affected</div>
+                    <div class="metric-value" id="m-parts">0</div>
+                </div>
+                <div class="metric" style="border-top:3px solid var(--green)">
+                    <div class="metric-label">Assemblies</div>
+                    <div class="metric-value" id="m-asms">0</div>
+                </div>
+                <div class="metric" style="border-top:3px solid var(--amber)">
+                    <div class="metric-label">Insp. Steps</div>
+                    <div class="metric-value" id="m-insp">0</div>
+                </div>
+                <div class="metric" style="border-top:3px solid var(--purple)">
+                    <div class="metric-label">Documents</div>
+                    <div class="metric-value" id="m-docs">0</div>
+                </div>
+                <div class="metric" style="border-top:3px solid var(--red)">
+                    <div class="metric-label">Safety Critical</div>
+                    <div class="metric-value" id="m-safety">0</div>
+                </div>
+                <div class="metric" style="border-top:3px solid var(--accent)">
+                    <div class="metric-label">Est. Effort</div>
+                    <div class="metric-value" id="m-effort">0h</div>
+                </div>
+            </div>
+
+            <!-- AI Interpretation -->
+            <div class="card fade-in">
+                <div class="card-header">
+                    <div class="card-title">Agent 1 — AI Request Interpretation</div><span class="badge"
+                        id="conf-badge"></span>
+                </div>
+                <div class="card-body">
+                    <p style="font-family:var(--mono);color:var(--text-dim);line-height:1.6" id="res-interpreted"></p>
+                </div>
+            </div>
+
+            <!-- ========== PANEL 1: BOM BEFORE/AFTER ========== -->
+            <div class="card fade-in">
+                <div class="card-header" style="background:linear-gradient(90deg,rgba(59,154,255,.08),transparent)">
+                    <div class="card-title" style="font-size:14px">BILL OF MATERIALS — IMPACT ANALYSIS</div>
+                    <span class="badge badge-cad" id="bom-count"></span>
+                </div>
+                <table id="t-bom">
+                    <thead>
+                        <tr>
+                            <th>Part</th>
+                            <th style="text-align:right">Weight Before</th>
+                            <th style="text-align:right">Weight After</th>
+                            <th style="text-align:right">Change</th>
+                            <th style="text-align:right">Cost Before</th>
+                            <th style="text-align:right">Cost After</th>
+                            <th style="text-align:right">Change</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                    <tfoot id="bom-totals"></tfoot>
+                </table>
+            </div>
+
+            <!-- ========== PANEL 2: COST ANALYSIS WITH NET BENEFIT ========== -->
+            <div class="card fade-in" id="cost-panel">
+                <div class="card-header" style="background:linear-gradient(90deg,rgba(240,165,0,.08),transparent)">
+                    <div class="card-title" style="font-size:14px">COST IMPACT ANALYSIS</div>
+                </div>
+                <div class="card-body">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+                        <!-- Material cost -->
+                        <div style="border:1px solid var(--border);border-radius:8px;padding:16px">
+                            <div
+                                style="font-size:10px;letter-spacing:2px;color:var(--amber);text-transform:uppercase;margin-bottom:12px">
+                                Material Cost Change (BOM Delta)</div>
+                            <div id="cost-material" style="font-family:var(--mono);font-size:12px;line-height:2"></div>
+                        </div>
+                        <!-- Effort cost -->
+                        <div style="border:1px solid var(--border);border-radius:8px;padding:16px">
+                            <div
+                                style="font-size:10px;letter-spacing:2px;color:var(--blue);text-transform:uppercase;margin-bottom:12px">
+                                Engineering Effort Cost</div>
+                            <div id="cost-effort" style="font-family:var(--mono);font-size:12px;line-height:2"></div>
+                        </div>
+                    </div>
+                    <!-- NET BENEFIT -->
+                    <div id="net-benefit"
+                        style="margin-top:16px;border:2px solid var(--accent);border-radius:8px;padding:16px;text-align:center;display:none">
+                        <div
+                            style="font-size:10px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;margin-bottom:8px">
+                            Net Position (First Year)</div>
+                        <div
+                            style="display:flex;justify-content:center;gap:40px;font-family:var(--mono);font-size:13px">
+                            <div><span style="color:var(--green)">Material savings:</span> <span id="nb-save"></span>
+                            </div>
+                            <div><span style="color:var(--red)">Implementation:</span> <span id="nb-cost"></span></div>
+                            <div><span style="color:var(--accent);font-weight:700;font-size:16px" id="nb-net"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== PANEL 3: INSPECTION BEFORE/AFTER ========== -->
+            <div class="card fade-in" id="insp-panel">
+                <div class="card-header" style="background:linear-gradient(90deg,rgba(163,112,247,.08),transparent)">
+                    <div class="card-title" style="font-size:14px">INSPECTION PLAN — EXACT CHANGES REQUIRED</div>
+                </div>
+                <table id="t-insp-ba">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Step Description</th>
+                            <th>Tool</th>
+                            <th style="text-align:center">Before</th>
+                            <th style="text-align:center">After</th>
+                            <th style="text-align:center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <!-- ========== BARLOW PRESSURE ANALYSIS ========== -->
+            <div class="card fade-in" id="barlow-panel" style="display:none">
+                <div class="card-header" style="background:linear-gradient(90deg,rgba(224,64,64,.08),transparent)">
+                    <div class="card-title" style="font-size:14px">BARLOW PRESSURE ANALYSIS — Agent 4 Validation</div>
+                    <span class="badge" id="barlow-badge"></span>
+                </div>
+                <div class="card-body" id="barlow-body" style="font-family:var(--mono);font-size:13px;line-height:2.0">
+                </div>
+            </div>
+
+            <!-- CAD Result -->
+            <div class="card fade-in">
+                <div class="card-header">
+                    <div class="card-title">Agent 3 — CAD Modification</div><span class="badge badge-cad"
+                        id="cad-badge"></span>
+                </div>
+                <div class="card-body">
+                    <div id="cad-checks"></div>
+                    <img id="cad-render" src="" alt="" class="render-img" style="display:none">
+                </div>
+            </div>
+
+            <!-- Revision -->
+            <div class="card fade-in">
+                <div class="card-header">
+                    <div class="card-title">Agent 4 — Revision Classification</div><span class="badge"
+                        id="rev-badge"></span>
+                </div>
+                <div class="card-body">
+                    <p style="color:var(--text-dim);margin-bottom:12px" id="rev-note"></p>
+                    <div id="rev-rules" style="font-family:var(--mono);font-size:12px;color:var(--text-dim)"></div>
+                </div>
+            </div>
+
+            <!-- Safety Warnings -->
+            <div class="safety-block" id="safety-block" style="display:none">
+                <h3>⚠ Safety Warnings</h3>
+                <div id="safety-list" style="font-family:var(--mono);font-size:12px"></div>
+            </div>
+
+            <!-- Parts Table -->
+            <div class="card fade-in">
+                <div class="card-header">
+                    <div class="card-title">Affected Parts</div>
+                </div>
+                <table id="t-parts">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Material</th>
+                            <th>Rev</th>
+                            <th>Impact</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <!-- Assemblies Table -->
+            <div class="card fade-in">
+                <div class="card-header">
+                    <div class="card-title">Affected Assemblies</div>
+                </div>
+                <table id="t-asms">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Criticality</th>
+                            <th>Impact</th>
+                            <th>BOM</th>
+                            <th>Test</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <!-- Documents Table -->
+            <div class="card fade-in">
+                <div class="card-header">
+                    <div class="card-title">Document Impact Register</div>
+                </div>
+                <table id="t-docs">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Reference</th>
+                            <th>Action</th>
+                            <th>Priority</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <!-- Effort -->
+            <div class="card fade-in">
+                <div class="card-header">
+                    <div class="card-title">Engineering Effort Estimate</div><span id="eff-total"
+                        style="font-family:var(--mono);font-size:13px;color:var(--amber)"></span>
+                </div>
+                <div class="card-body" id="eff-body"></div>
+            </div>
+
+            <!-- Narrative -->
+            <div class="card fade-in">
+                <div class="card-header">
+                    <div class="card-title">Agent 5 — AI Impact Narrative</div>
+                </div>
+                <div class="card-body">
+                    <div class="narrative" id="res-narr"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== VERSION HISTORY PANEL ========== -->
+        <div class="history-panel" id="historyPanel">
+            <div class="vc-toolbar">
+                <div class="vc-title">⎇ Supabase Version Control — ECA Change Log</div>
+                <button class="vc-refresh" onclick="loadHistory()">↻ Refresh</button>
+            </div>
+            <div id="vc-body">
+                <div class="vc-loading">LOADING HISTORY...</div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <span>ECA — Engineering Change Orchestrator v3.0 · 5-Agent Pipeline · STARK-X · SREC</span>
+        <span style="color:var(--accent)">SLB Industry-Academia Hackathon 2026</span>
+    </footer>
+
+    <script>
+        const API = "http://localhost:5000";
+        let sessionId = null;
+        let currentTab = 'analyze';
+
+        function showTab(tab) {
+            currentTab = tab;
+            const analysisEls = ['pipeline', 'results', 'errorBox'];
+            const inputSection = document.querySelector('.input-section');
+            const histPanel = document.getElementById('historyPanel');
+            if (tab === 'analyze') {
+                inputSection.style.display = 'block';
+                histPanel.classList.remove('show');
+                document.getElementById('navAnalyze').classList.add('active');
+                document.getElementById('navHistory').classList.remove('active');
+            } else {
+                inputSection.style.display = 'none';
+                document.getElementById('pipeline').classList.remove('active');
+                document.getElementById('results').classList.remove('show');
+                histPanel.classList.add('show');
+                document.getElementById('navHistory').classList.add('active');
+                document.getElementById('navAnalyze').classList.remove('active');
+                loadHistory();
+            }
+        }
+
+        // Health check
+        window.onload = async () => {
+            document.getElementById('navAnalyze').classList.add('active');
+            try {
+                const r = await fetch(`${API}/health`);
+                const d = await r.json();
+                document.getElementById('dot-api').className = `dot ${d.gemini ? 'on' : 'off'}`;
+                document.getElementById('dot-cad').className = `dot ${d.freecad ? 'on' : 'off'}`;
+            } catch (e) { console.error("API offline"); }
+        };
+
+        const examples = [
+            "Reduce wall thickness of Valve Body by 2mm for weight reduction",
+            "Change End Cap material from SS304 to SS316L",
+            "Increase Gate Stem diameter to 28mm",
+            "Update marking on Valve Body drawing to add project code"
+        ];
+        function fillEx(i) { document.getElementById('nlInput').value = examples[i]; }
+
+        // Voice Input
+        let recognition = null;
+        function toggleVoice() {
+            const btn = document.getElementById('voiceBtn');
+            if (recognition) { recognition.stop(); recognition = null; btn.classList.remove('recording'); btn.textContent = '🎤'; return; }
+            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SR) { alert("Voice not supported in this browser. Use Chrome."); return; }
+            recognition = new SR();
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+            btn.classList.add('recording');
+            btn.textContent = '⏹';
+            recognition.onresult = (e) => {
+                document.getElementById('nlInput').value = e.results[0][0].transcript;
+                btn.classList.remove('recording'); btn.textContent = '🎤'; recognition = null;
+            };
+            recognition.onerror = () => { btn.classList.remove('recording'); btn.textContent = '🎤'; recognition = null; };
+            recognition.onend = () => { btn.classList.remove('recording'); btn.textContent = '🎤'; recognition = null; };
+            recognition.start();
+        }
+
+        // Pipeline execution via SSE
+        function runPipeline() {
+            const nl = document.getElementById('nlInput').value.trim();
+            if (!nl) return alert("Enter a prompt!");
+
+            // Reset UI
+            document.getElementById('pipeline').classList.add('active');
+            document.getElementById('results').classList.remove('show');
+            document.getElementById('errorBox').classList.remove('show');
+            document.getElementById('btnStep').style.display = 'none';
+            for (let i = 1; i <= 5; i++) {
+                document.getElementById(`an${i}`).className = 'agent-num';
+                document.getElementById(`as${i}`).textContent = 'Waiting...';
+                document.getElementById(`at${i}`).textContent = '—';
+            }
+
+            const source = new EventSource(`${API}/analyze-stream?` + new URLSearchParams({ request: nl }));
+
+            // SSE doesn't support POST body easily, so use fetch instead
+            source.close();
+
+            // Use fetch with streaming
+            fetch(`${API}/analyze-stream`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ request: nl })
+            }).then(response => {
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+
+                function read() {
+                    reader.read().then(({ done, value }) => {
+                        if (done) return;
+                        buffer += decoder.decode(value, { stream: true });
+                        const lines = buffer.split('\n');
+                        buffer = lines.pop();
+                        for (const line of lines) {
+                            if (line.startsWith('data: ')) {
+                                try {
+                                    const d = JSON.parse(line.slice(6));
+                                    handleSSE(d);
+                                } catch (e) { }
+                            }
+                        }
+                        read();
+                    });
+                }
+                read();
+            }).catch(e => {
+                document.getElementById('errorBox').textContent = "Connection error: " + e.message;
+                document.getElementById('errorBox').classList.add('show');
+            });
+        }
+
+        function handleSSE(d) {
+            if (d.agent === 'error') {
+                if (d.error && d.error.includes('GEMINI_API_EXHAUSTED')) {
+                    document.getElementById('apiModal').classList.add('show');
+                    document.getElementById('pipeline').classList.remove('active');
+                } else {
+                    document.getElementById('errorBox').textContent = "Error: " + d.error;
+                    document.getElementById('errorBox').classList.add('show');
+                }
+                return;
+            }
+            if (typeof d.agent === 'number') {
+                const n = d.agent;
+                if (d.status === 'running') {
+                    document.getElementById(`an${n}`).className = 'agent-num running';
+                    document.getElementById(`as${n}`).textContent = 'Processing...';
+                } else if (d.status === 'done') {
+                    document.getElementById(`an${n}`).className = 'agent-num done';
+                    document.getElementById(`an${n}`).textContent = '✓';
+                    document.getElementById(`as${n}`).textContent = 'Complete';
+                    document.getElementById(`at${n}`).textContent = `${d.time}s`;
+                }
+            }
+            if (d.agent === 'complete') {
+                sessionId = d.session_id;
+                populateResults(d);
+                document.getElementById('results').classList.add('show');
+                if (d.step_files && d.step_files.length > 0) {
+                    document.getElementById('btnStep').style.display = 'inline-block';
+                }
+            }
+        }
+
+        function populateResults(d) {
+            try {
+                const $ = (id) => document.getElementById(id);
+                const money = (v) => '$' + Number(v || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                const kg = (v) => Number(v || 0).toFixed(2) + ' kg';
+
+                // 1. Initial Metrics Grid
+                try {
+                    const s = d.impact_data?.summary || {};
+                    if ($('m-parts')) $('m-parts').textContent = s.total_parts_affected || 0;
+                    if ($('m-asms')) $('m-asms').textContent = s.total_assemblies_affected || 0;
+                    if ($('m-insp')) $('m-insp').textContent = s.total_inspection_steps_to_update || 0;
+                    if ($('m-docs')) $('m-docs').textContent = s.total_documents_to_update || 0;
+                    if ($('m-safety')) $('m-safety').textContent = s.safety_critical_assemblies || 0;
+                    if ($('m-effort')) $('m-effort').textContent = `${d.effort_data?.total_hours || 0}h`;
+                } catch (e) { console.warn("Metrics Grid error", e); }
+
+                // 2. AI Interpretation Card
+                if ($('res-interpreted')) $('res-interpreted').textContent = d.parsed_request?.understood_request || '';
+                if ($('conf-badge')) {
+                    $('conf-badge').textContent = (d.parsed_request?.confidence || 'High').toUpperCase();
+                    $('conf-badge').className = 'badge badge-pass';
+                }
+
+                // 3. BOM Table Panel
+                try {
+                    const bomTbody = document.querySelector('#t-bom tbody');
+                    const bomTfoot = $('bom-totals');
+                    if (bomTbody && bomTfoot) {
+                        bomTbody.innerHTML = '';
+                        let twb = 0, twa = 0, tcb = 0, tca = 0;
+                        (d.bom_before_after || []).forEach(b => {
+                            const hilite = b.changed ? 'style="background:rgba(0,212,170,.06)"' : '';
+                            const wdelta = b.weight_delta !== 0 ? `<span style="color:${b.weight_delta < 0 ? 'var(--green)' : 'var(--red)'}">${b.weight_delta > 0 ? '+' : ''}${b.weight_delta.toFixed(2)} kg</span>` : 'No change';
+                            const cdelta = b.cost_delta !== 0 ? `<span style="color:${b.cost_delta < 0 ? 'var(--green)' : 'var(--red)'}">${b.cost_delta > 0 ? '+' : '-'}${money(Math.abs(b.cost_delta))}</span>` : 'No change';
+                            bomTbody.innerHTML += `<tr ${hilite}><td><strong>${b.part_name}</strong><br><small>${b.part_id}</small></td><td align="right">${kg(b.weight_before)}</td><td align="right">${kg(b.weight_after)}</td><td align="right">${wdelta}</td><td align="right">${money(b.cost_before)}</td><td align="right">${money(b.cost_after)}</td><td align="right">${cdelta}</td></tr>`;
+                            twb += b.weight_before; twa += b.weight_after; tcb += b.cost_before; tca += b.cost_after;
+                        });
+                        const ws = twa - twb, cs = tca - tcb;
+                        const wColor = ws > 0 ? 'var(--red)' : 'var(--green)';
+                        const cColor = cs > 0 ? 'var(--red)' : 'var(--green)';
+                        bomTfoot.innerHTML = `<tr style="background:var(--surface2);font-weight:600"><td>ASSEMBLY TOTAL</td><td align="right">${kg(twb)}</td><td align="right">${kg(twa)}</td><td align="right" style="color:${wColor}">${ws > 0 ? '↑' : '↓'} ${kg(Math.abs(ws))}</td><td align="right">${money(tcb)}</td><td align="right">${money(tca)}</td><td align="right" style="color:${cColor}">${money(Math.abs(cs))} ${cs > 0 ? 'INCREASE' : 'SAVED'}</td></tr>`;
+                    }
+                } catch (e) { console.warn("BOM Panel error", e); }
+
+                // 4. Cost & Effort Analysis
+                try {
+                    const ca = d.cost_analysis || {};
+                    const ef = d.effort_data || {};
+                    if ($('cost-material')) $('cost-material').innerHTML = `Original Cost: ${money(ca.material_cost_before)}<br>Updated Cost: ${money(ca.material_cost_after)}<br>Delta: <strong style="color:var(--green)">${money(ca.material_saving_per_unit)} /unit</strong>`;
+                    let effH = '';
+                    for (const [k, v] of Object.entries(ef.breakdown || {})) effH += `${k}: ${v}h × $30 = ${money(v * 30)}<br>`;
+                    if ($('cost-effort')) $('cost-effort').innerHTML = effH || 'Standard effort applied.';
+                } catch (e) { console.warn("Cost Analysis error", e); }
+
+                // 5. Inspection Before/After
+                try {
+                    const t = document.querySelector('#t-insp-ba tbody');
+                    if (t) {
+                        t.innerHTML = '';
+                        (d.inspection_before_after || []).forEach(s => {
+                            const col = s.status === 'UPDATE' ? 'var(--amber)' : (s.status === 'RE-CALCULATE' ? 'var(--red)' : 'var(--text-dim)');
+                            t.innerHTML += `<tr><td>${s.step}</td><td>${s.description}</td><td>${s.tool}</td><td align="center">${s.nominal_before || '—'}</td><td align="center" style="color:${col}">${s.nominal_after || '—'}</td><td align="center" style="font-weight:600;color:${col}">${s.status}</td></tr>`;
+                        });
+                    }
+                } catch (e) { console.warn("Inspection Panel error", e); }
+
+                // 6. Barlow Pressure Panel
+                try {
+                    const bp = $('barlow-panel');
+                    if (bp) {
+                        const bw = (d.barlow_details || [])[0];
+                        if (bw) {
+                            bp.style.display = 'block';
+                            if ($('barlow-badge')) {
+                                $('barlow-badge').textContent = bw.result;
+                                $('barlow-badge').className = `badge ${bw.result === 'PASS' ? 'badge-pass' : 'badge-major'}`;
+                            }
+                            if ($('barlow-body')) $('barlow-body').innerHTML = `Update Thickness: <strong>${(bw.t_new_m * 1000).toFixed(1)}mm</strong><br>Burst Capability: <strong>${bw.pmax_new_bar} bar</strong><br>Result: <strong style="color:${bw.result === 'PASS' ? 'var(--green)' : 'var(--red)'}">${bw.result} (SF ${bw.sf_new})</strong>`;
+                        } else { bp.style.display = 'none'; }
+                    }
+                } catch (e) { console.warn("Barlow Card error", e); }
+
+                // 7. CAD Review Panel
+                try {
+                    const renderImg = $('cad-render');
+                    if (renderImg && d.cad_render) { renderImg.src = d.cad_render; renderImg.style.display = 'block'; }
+                    const checks = $('cad-checks');
+                    if (checks) checks.innerHTML = (d.validation_checks || []).map(c => `<div>${c.status === 'PASS' ? '✅' : '❌'} ${c.check}</div>`).join('');
+                } catch (e) { console.warn("CAD Panel error", e); }
+
+                // 8. Revision Card
+                try {
+                    const rev = d.revision_data || {};
+                    if ($('rev-badge')) {
+                        $('rev-badge').textContent = `${rev.revision_type || 'Minor'} — ${rev.revision_label || 'Rev B'}`;
+                        $('rev-badge').className = `badge ${rev.revision_type === 'Major' ? 'badge-major' : 'badge-minor'}`;
+                    }
+                    if ($('rev-note')) $('rev-note').textContent = rev.revision_note || '';
+                } catch (e) { console.warn("Rev Card error", e); }
+
+                // 9. Affected Parts/Assemblies
+                try {
+                    fillTable('t-parts', d.impact_data?.affected_parts, p => [p.part_id, p.part_name, p.material, p.current_revision, p.impact_type.replace(/_/g, ' '), p.action_required]);
+                    fillTable('t-asms', d.impact_data?.affected_assemblies, a => [a.assembly_id, a.assembly_name, a.criticality, a.impact_type, a.bom_id || '—', a.test_procedure_id || '—']);
+                    fillTable('t-docs', d.impact_data?.document_impacts, doc => [doc.document_type, doc.reference, doc.action, doc.priority]);
+                } catch (e) { console.warn("Tables error", e); }
+
+                // 10. Effort Visualization
+                try {
+                    const eb = $('eff-body');
+                    if (eb) {
+                        eb.innerHTML = '';
+                        const bd = d.effort_data?.breakdown || {};
+                        const vls = Object.values(bd);
+                        const maxH = Math.max(...vls, 1);
+                        for (const [k, v] of Object.entries(bd)) {
+                            eb.innerHTML += `<div class="effort-row"><div class="effort-lbl">${k}</div><div class="effort-track"><div class="effort-fill" style="width:${(v / maxH) * 100}%"></div></div><div class="effort-hrs">${v}h</div></div>`;
+                        }
+                    }
+                } catch (e) { console.warn("Chart error", e); }
+
+                if ($('res-narr')) $('res-narr').textContent = d.narrative || '';
+
+            } catch (err) {
+                console.error("Dashboard Global Error:", err);
+                if ($('errorBox')) {
+                    $('errorBox').textContent = "Critical Dashboard Load Error. Check browser console.";
+                    $('errorBox').classList.add('show');
+                }
+            }
+        }
+
+        function fillTable(id, data, mapper, rowClass) {
+            const tbody = document.querySelector(`#${id} tbody`);
+            tbody.innerHTML = '';
+            (data || []).forEach(item => {
+                const cls = rowClass ? rowClass(item) : '';
+                const cells = mapper(item).map(c => `<td>${c}</td>`).join('');
+                tbody.innerHTML += `<tr class="${cls}">${cells}</tr>`;
+            });
+        }
+
+        async function downloadReport() {
+            if (!sessionId) return;
+            try {
+                const r = await fetch(`${API}/report`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ session_id: sessionId }) });
+                const blob = await r.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a'); a.href = url; a.download = 'ECA_Impact_Report.pdf';
+                document.body.appendChild(a); a.click(); a.remove();
+            } catch (e) { alert("Error: " + e.message); }
+        }
+
+        async function downloadStep() {
+            if (!sessionId) return;
+            window.open(`${API}/download-step/${sessionId}`, '_blank');
+        }
+
+        async function previewModel() {
+            try {
+                const r = await fetch(`${API}/preview-model`);
+                const d = await r.json();
+                if (d.error) alert(d.error);
+                else alert('✅ FreeCAD is opening the base valve assembly model.\nLook at your taskbar!');
+            } catch (e) { alert('Error: ' + e.message); }
+        }
+
+        async function previewModified() {
+            try {
+                const r = await fetch(`${API}/preview-modified`);
+                const d = await r.json();
+                if (d.error) alert(d.error);
+                else alert('✅ FreeCAD is opening the MODIFIED model.\nCompare it with the original!');
+            } catch (e) { alert('Error: ' + e.message); }
+        }
+
+        // ─── VERSION HISTORY ──────────────────────────────────────────────────────
+        async function loadHistory() {
+            const body = document.getElementById('vc-body');
+            body.innerHTML = '<div class="vc-loading">FETCHING FROM SUPABASE...</div>';
+            try {
+                const r = await fetch(`${API}/api/history`);
+                const data = await r.json();
+                renderHistory(data);
+            } catch (e) {
+                body.innerHTML = `<div class="vc-empty">⚠ Could not reach backend: ${e.message}</div>`;
+            }
+        }
+
+        function renderHistory(rows) {
+            const body = document.getElementById('vc-body');
+            if (!rows || rows.length === 0) {
+                body.innerHTML = '<div class="vc-empty">No history yet. Run your first analysis to create version v1.</div>';
+                return;
+            }
+
+            const fmtDate = (iso) => {
+                if (!iso) return '—';
+                const d = new Date(iso);
+                return d.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' })
+                     + ' ' + d.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+            };
+
+            const riskColor = (r) => r < 30 ? 'var(--green)' : r < 60 ? 'var(--amber)' : 'var(--red)';
+            const riskLabel = (r) => r < 30 ? 'LOW RISK' : r < 60 ? 'MED RISK' : 'HIGH RISK';
+
+            let html = '<div class="vc-timeline">';
+            rows.forEach((row, idx) => {
+                const isMajor = (row.revision_type || '').toLowerCase() === 'major';
+                const dotCls  = isMajor ? 'major' : 'minor';
+                const cardCls = isMajor ? 'major-rev' : 'minor-rev';
+                const labelColor = isMajor ? 'var(--red)' : 'var(--green)';
+                const sid = row.session_id;
+                const diffId = `diff-${idx}`;
+
+                html += `
+                <div class="vc-entry ${cardCls}" id="vc-${idx}">
+                    <div class="vc-dot ${dotCls}"></div>
+                    <div class="vc-header">
+                        <span class="vc-ver">v${row.version_number}</span>
+                        <span class="vc-label" style="color:${labelColor}">${(row.revision_label || 'Rev A').toUpperCase()} — ${(row.revision_type || 'Minor').toUpperCase()}</span>
+                        <span class="vc-time">${fmtDate(row.created_at)}</span>
+                    </div>
+                    <div class="vc-prompt" title="${(row.prompt || '').replace(/"/g,'&quot;')}">
+                        &ldquo;${(row.prompt || '').slice(0, 180)}${(row.prompt || '').length > 180 ? '…' : ''}&rdquo;
+                    </div>
+                    <div class="vc-stats">
+                        <span class="vc-stat">📦 ${row.parts_affected || 0} parts</span>
+                        <span class="vc-stat">🔩 ${row.assemblies_affected || 0} assemblies</span>
+                        <span class="vc-stat">🔍 ${row.inspection_steps || 0} insp. steps</span>
+                        <span class="vc-stat">📄 ${row.documents_updated || 0} docs</span>
+                        <span class="vc-stat">⏱ ${row.total_effort_hours || 0}h effort</span>
+                        <span class="vc-stat highlight" style="color:${riskColor(row.risk_score || 0)};border-color:${riskColor(row.risk_score || 0)}40">
+                            ⚡ Risk ${row.risk_score || 0}/100 · ${riskLabel(row.risk_score || 0)}
+                        </span>
+                        <span class="vc-stat" style="color:${row.overall_safe ? 'var(--green)' : 'var(--red)'}">
+                            ${row.overall_safe ? '✅ SAFE' : '🚨 HOLD'}
+                        </span>
+                        ${row.cad_method ? `<span class="vc-stat">🛠 ${row.cad_method.toUpperCase()}</span>` : ''}
+                        ${row.mass_reduction_pct ? `<span class="vc-stat">⚖ -${Number(row.mass_reduction_pct).toFixed(1)}% mass</span>` : ''}
+                    </div>
+                    <div class="vc-actions">
+                        <button class="vc-btn" onclick="toggleDiff('${diffId}')">🔎 Details</button>
+                        <button class="vc-btn pdf" onclick="reDownloadPDF('${sid}')">
+                            📄 PDF
+                        </button>
+                        ${row.cad_storage_path ? `
+                        <button class="vc-btn" style="color:var(--amber);border-color:rgba(240,165,0,.3)" onclick="reDownloadCAD('${sid}', 'fcstd')">
+                            📦 FCStd
+                        </button>` : ''}
+                        ${row.step_storage_path ? `
+                        <button class="vc-btn" style="color:var(--cyan);border-color:rgba(0,245,212,.3)" onclick="reDownloadCAD('${sid}', 'step')">
+                            📦 STEP
+                        </button>` : ''}
+                        <button class="vc-btn" onclick="copySessionId('${sid}')">
+                            📋 ID
+                        </button>
+                    </div>
+                    <div class="vc-diff" id="${diffId}">
+                        <table>
+                            <thead><tr><th>Field</th><th>Value</th></tr></thead>
+                            <tbody>
+                                <tr><td>Session ID</td><td>${sid}</td></tr>
+                                <tr><td>Change Category</td><td>${row.change_category || '—'}</td></tr>
+                                <tr><td>Safety Critical Assemblies</td><td>${row.safety_critical || 0}</td></tr>
+                                <tr><td>Narrative</td><td style="max-width:400px;white-space:normal">${(row.narrative || '—').slice(0, 300)}</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>`;
+            });
+            html += '</div>';
+            body.innerHTML = html;
+        }
+
+        function toggleDiff(id) {
+            const el = document.getElementById(id);
+            if (el) el.classList.toggle('show');
+        }
+
+        async function reDownloadPDF(sid) {
+            try {
+                // Try session in-memory first
+                const r = await fetch(`${API}/report`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ session_id: sid })
+                });
+                if (r.ok) {
+                    const blob = await r.blob();
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url; a.download = `ECA_Report_${sid}.pdf`;
+                    document.body.appendChild(a); a.click(); a.remove();
+                    return;
+                }
+                // Fallback: fetch from Supabase full record, decode pdf_base64
+                const r2 = await fetch(`${API}/api/session/${sid}`);
+                if (!r2.ok) { alert('PDF not found for this session.'); return; }
+                const d = await r2.json();
+                if (!d.pdf_base64) { alert('No PDF stored for this session.'); return; }
+                const byteChars = atob(d.pdf_base64);
+                const byteArr  = new Uint8Array(byteChars.length);
+                for (let i = 0; i < byteChars.length; i++) byteArr[i] = byteChars.charCodeAt(i);
+                const blob2 = new Blob([byteArr], { type: 'application/pdf' });
+                const url2  = URL.createObjectURL(blob2);
+                const a2    = document.createElement('a');
+                a2.href = url2; a2.download = `ECA_Report_${sid}.pdf`;
+                document.body.appendChild(a2); a2.click(); a2.remove();
+            } catch (e) {
+                alert('Error downloading PDF: ' + e.message);
+            }
+        }
+
+        function copySessionId(sid) {
+            navigator.clipboard.writeText(sid)
+                .then(() => alert(`Copied: ${sid}`))
+                .catch(() => alert(sid));
+        }
+
+        async function reDownloadCAD(sid, format = 'fcstd') {
+            try {
+                const r = await fetch(`${API}/api/cad-url/${sid}?format=${format}`);
+                const d = await r.json();
+                if (d.error) throw new Error(d.error);
+                
+                // Open the URL in a new tab to trigger download
+                window.open(d.url, '_blank');
+            } catch (e) {
+                alert('Error downloading ' + format.toUpperCase() + ': ' + e.message);
+            }
+        }
+    </script>
+
+    <!-- API Exhausted Modal -->
+    <div class="modal-overlay" id="apiModal">
+        <div class="modal-box">
+            <div class="modal-icon">&#9888;</div>
+            <div class="modal-title">Gemini API Exhausted</div>
+            <div class="modal-msg">
+                The AI engine has reached its rate limit<br>
+                <strong>(5 requests per minute / 20 per day)</strong>.<br><br>
+                Please wait <strong>60 seconds</strong> for the service to reset,<br>
+                then try your analysis again.
+            </div>
+            <div class="modal-cooldown">&#9201; Cooling down...</div>
+            <button class="modal-btn" onclick="document.getElementById('apiModal').classList.remove('show')">
+                ACKNOWLEDGE
+            </button>
+        </div>
+    </div>
+
+</body>
+
+</html>

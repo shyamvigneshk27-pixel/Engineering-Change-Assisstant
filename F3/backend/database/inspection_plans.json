@@ -1,0 +1,36 @@
+{
+  "INSP-001": {
+    "part_id": "PART-001",
+    "steps": [
+      {"step": 1, "type": "dimensional", "description": "Measure wall thickness at 8 positions using ultrasonic gauge", "tool": "Ultrasonic gauge UT-2000", "nominal_mm": 12.0, "tolerance_mm": 0.5, "keywords": ["wall_thickness", "wall thickness", "thickness"]},
+      {"step": 2, "type": "dimensional", "description": "Check outer diameter at 3 cross-sections using CMM", "tool": "CMM", "nominal_mm": 150.0, "tolerance_mm": 0.1, "keywords": ["outer_diameter", "diameter", "OD"]},
+      {"step": 3, "type": "dimensional", "description": "Verify inner bore diameter for flow path compliance", "tool": "Bore gauge", "nominal_mm": 126.0, "tolerance_mm": 0.05, "keywords": ["inner_diameter", "bore", "ID"]},
+      {"step": 4, "type": "pressure", "description": "Hydrostatic shell pressure test at 1.5x design pressure for 15 minutes", "tool": "Hydraulic test rig", "keywords": ["wall_thickness", "pressure", "material"]},
+      {"step": 5, "type": "material", "description": "PMI verification of SS316 chemical composition", "tool": "XRF Analyzer", "keywords": ["material"]}
+    ]
+  },
+  "INSP-002": {
+    "part_id": "PART-002",
+    "steps": [
+      {"step": 1, "type": "dimensional", "description": "Dimensional check of mating face outer diameter", "tool": "Vernier caliper + CMM", "nominal_mm": 152.0, "tolerance_mm": 0.05, "keywords": ["outer_diameter", "diameter", "OD"]},
+      {"step": 2, "type": "surface", "description": "Surface finish check Ra <= 1.6 micron on gasket face", "tool": "Profilometer", "keywords": ["surface", "finish"]},
+      {"step": 3, "type": "dimensional", "description": "Measure wall thickness at 4 quadrant positions", "tool": "Ultrasonic gauge", "nominal_mm": 8.0, "tolerance_mm": 0.5, "keywords": ["wall_thickness", "wall thickness", "thickness"]}
+    ]
+  },
+  "INSP-003": {
+    "part_id": "PART-003",
+    "steps": [
+      {"step": 1, "type": "dimensional", "description": "Measure stem diameter at 5 axial positions using micrometer", "tool": "Digital micrometer", "nominal_mm": 25.0, "tolerance_mm": 0.02, "keywords": ["diameter", "stem_diameter"]},
+      {"step": 2, "type": "dimensional", "description": "Verify thread pitch and form using optical comparator", "tool": "Optical comparator", "keywords": ["thread", "diameter"]},
+      {"step": 3, "type": "material", "description": "Hardness verification HRC 28-35", "tool": "Rockwell hardness tester", "keywords": ["material", "hardness"]}
+    ]
+  },
+  "INSP-004": {
+    "part_id": "PART-004",
+    "steps": [
+      {"step": 1, "type": "dimensional", "description": "Measure stem bore diameter for clearance fit with stem", "tool": "Bore gauge + air gauge", "nominal_mm": 26.0, "tolerance_mm": 0.025, "keywords": ["bore_diameter", "bore", "diameter"]},
+      {"step": 2, "type": "dimensional", "description": "Verify wall thickness at minimum cross-section", "tool": "Ultrasonic gauge", "nominal_mm": 10.0, "tolerance_mm": 0.5, "keywords": ["wall_thickness", "wall thickness", "thickness"]},
+      {"step": 3, "type": "pressure", "description": "Seat leak test at full design pressure per API 598", "tool": "Pneumatic test rig", "keywords": ["pressure", "wall_thickness", "material"]}
+    ]
+  }
+}

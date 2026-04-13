@@ -1,0 +1,95 @@
+{
+  "PART-001": {
+    "name": "Valve Body",
+    "material": "SS316",
+    "category": "pressure_retaining",
+    "dimensions": {
+      "wall_thickness_mm": 12.0,
+      "outer_diameter_mm": 150.0,
+      "inner_diameter_mm": 126.0,
+      "length_mm": 300.0
+    },
+    "tolerances": { "wall_thickness_mm": 0.5, "outer_diameter_mm": 0.1 },
+    "weight_kg": 8.4,
+    "owner": "Mechanical Engineering",
+    "used_in_assemblies": ["ASM-001", "ASM-003"],
+    "inspection_plan_id": "INSP-001",
+    "current_revision": "B",
+    "design_pressure_bar": 150,
+    "cad_feature_map": {
+      "wall_thickness_mm": "WallThickness",
+      "outer_diameter_mm": "OuterDiameter",
+      "inner_diameter_mm": "InnerDiameter",
+      "height_mm": "Height",
+      "length_mm": "Length"
+    }
+  },
+  "PART-002": {
+    "name": "End Cap",
+    "material": "SS304",
+    "category": "pressure_retaining",
+    "dimensions": {
+      "wall_thickness_mm": 8.0,
+      "outer_diameter_mm": 152.0,
+      "inner_diameter_mm": 126.0,
+      "length_mm": 45.0
+    },
+    "tolerances": { "outer_diameter_mm": 0.05, "wall_thickness_mm": 0.5 },
+    "weight_kg": 1.2,
+    "owner": "Mechanical Engineering",
+    "used_in_assemblies": ["ASM-001"],
+    "inspection_plan_id": "INSP-002",
+    "current_revision": "A",
+    "design_pressure_bar": 150,
+    "cad_feature_map": {
+      "wall_thickness_mm": "WallThick",
+      "outer_diameter_mm": "OD",
+      "inner_diameter_mm": "ID"
+    }
+  },
+  "PART-003": {
+    "name": "Gate Stem",
+    "material": "Inconel 625",
+    "category": "structural",
+    "dimensions": {
+      "diameter_mm": 25.0,
+      "length_mm": 200.0,
+      "thread_pitch_mm": 4.0
+    },
+    "tolerances": { "diameter_mm": 0.02 },
+    "weight_kg": 0.8,
+    "owner": "Precision Engineering",
+    "used_in_assemblies": ["ASM-002"],
+    "inspection_plan_id": "INSP-003",
+    "current_revision": "C",
+    "design_pressure_bar": 150,
+    "cad_feature_map": {
+      "diameter_mm": "StemDiameter",
+      "length_mm": "StemLength"
+    }
+  },
+  "PART-004": {
+    "name": "Bonnet",
+    "material": "SS316",
+    "category": "pressure_retaining",
+    "dimensions": {
+      "wall_thickness_mm": 10.0,
+      "outer_diameter_mm": 120.0,
+      "bore_diameter_mm": 26.0,
+      "height_mm": 180.0
+    },
+    "tolerances": { "bore_diameter_mm": 0.025, "wall_thickness_mm": 0.5 },
+    "weight_kg": 3.6,
+    "owner": "Mechanical Engineering",
+    "used_in_assemblies": ["ASM-001", "ASM-002"],
+    "inspection_plan_id": "INSP-004",
+    "current_revision": "B",
+    "design_pressure_bar": 150,
+    "cad_feature_map": {
+      "wall_thickness_mm": "WallThickness",
+      "bore_diameter_mm": "StemBore",
+      "height_mm": "Height",
+      "length_mm": "Length"
+    }
+  }
+}

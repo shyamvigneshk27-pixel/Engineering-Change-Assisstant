@@ -1,0 +1,380 @@
+'=============================================================
+' ECA_Inventor.ilogic
+' ECA — Engineering Change Assistant | Phase 2 CAD Engine
+' STARK-X | Sri Ramakrishna Engineering College | SLB 2026
+' Platform : Autodesk Inventor 2020+ (iLogic Rule)
+'
+' HOW TO RUN:
+'   1. Open ValveBody.ipt in Inventor
+'   2. Open iLogic panel (Tools → iLogic → iLogic Browser)
+'   3. Right-click → Add Rule → paste this entire file
+'   4. Name the rule "ECA_Phase2"
+'   5. Click "Run Rule"  (or set trigger: On Model Change)
+'
+' REQUIREMENTS:
+'   - Part named ValveBody.ipt with user parameters:
+'       WallThickness   = 12 mm
+'       OuterDiameter   = 150 mm
+'       PartLength      = 200 mm
+'   - Assembly ValveAssembly.iam referencing ValveBody.ipt
+'   - BOM iProperties filled (Description, Material, Revision)
+'=============================================================
+
+' ─────────────────────────────────────────────────────────────
+' SECTION 0 — EWR CONFIGURATION (edit these for each change)
+' ─────────────────────────────────────────────────────────────
+
+Dim EWR_TEXT      As String = "Reduce the wall thickness of the Valve Body by 2mm for weight reduction"
+Dim EWR_PART      As String = "ValveBody"
+Dim EWR_PARAM     As String = "WallThickness"
+Dim EWR_DELTA_MM  As Double = 2.0
+Dim EWR_DIRECTION As String = "DECREASE"   ' DECREASE or INCREASE
+
+' Engineering constants (SS316L @ 25°C, ASME VIII)
+Dim YIELD_STRENGTH_MPA As Double = 170.0
+Dim DESIGN_PRESSURE_BAR As Double = 200.0
+Dim OD_MM As Double = 150.0
+Dim SAFETY_MIN As Double = 2.5
+
+' ─────────────────────────────────────────────────────────────
+' SECTION 1 — UTILITIES
+' ─────────────────────────────────────────────────────────────
+
+Function ECA_Log(msg As String)
+    Logger.Info("[ECA-Inventor] " & msg)
+    System.Console.WriteLine("[ECA-Inventor] " & msg)
+End Function
+
+Function Barlow_SF(wall_mm As Double, od_mm As Double,
+                   yield_mpa As Double, design_bar As Double) As Double
+    ' P_max = (2 × S × t) / D  [MPa]
+    Dim t_m   As Double = wall_mm / 1000.0
+    Dim od_m  As Double = od_mm  / 1000.0
+    Dim p_des As Double = design_bar * 0.1   ' bar → MPa
+    Dim p_max As Double = (2.0 * yield_mpa * t_m) / od_m
+    Barlow_SF = p_max / p_des
+End Function
+
+' ─────────────────────────────────────────────────────────────
+' SECTION 2 — BARLOW SAFETY VALIDATION
+' ─────────────────────────────────────────────────────────────
+
+Function ECA_ValidateSafety(wall_before As Double, wall_after As Double) As Boolean
+    Dim sf_before As Double = Barlow_SF(wall_before, OD_MM, YIELD_STRENGTH_MPA, DESIGN_PRESSURE_BAR)
+    Dim sf_after  As Double = Barlow_SF(wall_after,  OD_MM, YIELD_STRENGTH_MPA, DESIGN_PRESSURE_BAR)
+
+    ECA_Log("BARLOW ANALYSIS (ASME VIII / API 6D)")
+    ECA_Log("  BEFORE  Wall=" & wall_before & "mm  SF=" & Format(sf_before, "0.00"))
+    ECA_Log("  AFTER   Wall=" & wall_after  & "mm  SF=" & Format(sf_after,  "0.00"))
+    ECA_Log("  Minimum SF required: " & SAFETY_MIN)
+
+    If sf_after >= SAFETY_MIN Then
+        ECA_Log("  SAFETY CHECK: PASS ✅")
+        ECA_ValidateSafety = True
+    Else
+        ECA_Log("  SAFETY CHECK: FAIL ❌ — CHANGE REJECTED")
+        ECA_ValidateSafety = False
+    End If
+End Function
+
+' ─────────────────────────────────────────────────────────────
+' SECTION 3 — FEATURE / DIMENSION UPDATE (Inventor Parameters)
+' ─────────────────────────────────────────────────────────────
+
+Function ECA_UpdateDimension(partDoc As PartDocument,
+                              paramName As String,
+                              delta_mm As Double,
+                              direction As String) As Double
+    ' Access Inventor's Parameters collection
+    Dim params As Parameters = partDoc.ComponentDefinition.Parameters
+
+    ' Confirm parameter exists
+    Dim targetParam As Parameter
+    Try
+        targetParam = params.Item(paramName)
+    Catch
+        ECA_Log("ERROR: Parameter '" & paramName & "' not found in model.")
+        Return -1
+    End Try
+
+    ' Read current value (Inventor stores in cm internally — convert)
+    Dim currentVal_mm As Double = targetParam.Value * 10.0   ' cm → mm
+
+    ' Calculate new value
+    Dim newVal_mm As Double
+    If direction = "DECREASE" Then
+        newVal_mm = currentVal_mm - delta_mm
+    Else
+        newVal_mm = currentVal_mm + delta_mm
+    End If
+
+    If newVal_mm <= 0 Then
+        ECA_Log("ERROR: New value ≤ 0. Rejected.")
+        Return -1
+    End If
+
+    ' Apply new value (convert back to cm)
+    targetParam.Value = newVal_mm / 10.0
+
+    ECA_Log("Parameter '" & paramName & "' updated: " &
+            Format(currentVal_mm, "0.00") & "mm → " &
+            Format(newVal_mm, "0.00") & "mm")
+
+    ECA_UpdateDimension = newVal_mm
+End Function
+
+' ─────────────────────────────────────────────────────────────
+' SECTION 4 — MODEL REGENERATION & VALIDATION
+' ─────────────────────────────────────────────────────────────
+
+Function ECA_RegenerateAndValidate(partDoc As PartDocument) As Boolean
+    ECA_Log("Triggering model regeneration ...")
+
+    ' Rebuild the parametric model with updated values
+    partDoc.Rebuild2(True)   ' True = full rebuild (vs incremental)
+    ECA_Log("Model rebuild complete.")
+
+    ' Check for geometry errors after rebuild
+    Dim healthState As HealthStatusEnum = partDoc.HealthStatus
+    If healthState = kUpToDateHealthStatus Then
+        ECA_Log("Model health: UP TO DATE ✅")
+        ECA_RegenerateAndValidate = True
+    ElseIf healthState = kOutOfDateHealthStatus Then
+        ECA_Log("WARNING: Some features are out of date — forcing recompute ...")
+        partDoc.ComponentDefinition.SurfaceBodies.Item(1).IsAssociative = True
+        partDoc.Rebuild2(True)
+        ECA_RegenerateAndValidate = True
+    Else
+        ECA_Log("ERROR: Model health failure — review suppressed features.")
+        ECA_RegenerateAndValidate = False
+    End If
+
+    ' Validate minimum wall thickness (engineering constraint)
+    Dim params As Parameters = partDoc.ComponentDefinition.Parameters
+    Dim wallParam As Parameter = params.Item(EWR_PARAM)
+    Dim wallVal_mm As Double = wallParam.Value * 10.0
+
+    If wallVal_mm < 3.0 Then
+        ECA_Log("ENGINEERING CONSTRAINT FAIL: Wall < 3mm minimum manufacturing limit.")
+        ECA_RegenerateAndValidate = False
+    End If
+
+    ECA_Log("Wall after regeneration: " & Format(wallVal_mm, "0.00") & "mm — constraint OK")
+End Function
+
+' ─────────────────────────────────────────────────────────────
+' SECTION 5 — ASSEMBLY CONSTRAINT UPDATE
+' ─────────────────────────────────────────────────────────────
+
+Function ECA_UpdateAssemblyConstraints(asmDoc As AssemblyDocument,
+                                        wall_after As Double) As Integer
+    ECA_Log("Scanning assembly constraints for affected mates ...")
+    Dim updatedCount As Integer = 0
+    Dim compDef As AssemblyComponentDefinition = asmDoc.ComponentDefinition
+
+    ' Iterate all occurrences (component instances) in the assembly
+    Dim occ As ComponentOccurrence
+    For Each occ In compDef.Occurrences
+        ECA_Log("  Checking occurrence: " & occ.Name)
+
+        ' Update occurrence if it's the ValveBody component
+        If InStr(LCase(occ.Name), "valvebody") > 0 Then
+            ECA_Log("  Found ValveBody in assembly — verifying mate constraints ...")
+
+            ' Iterate constraints on this occurrence
+            Dim constraint As AssemblyConstraint
+            For Each constraint In occ.Constraints
+                ' Flush all mate offsets that reference the OD surface
+                ' (In production: check constraint.Name or AffectedGeometry)
+                If constraint.ConstraintType = kMateConstraint Then
+                    ' Re-evaluate the constraint after dimension change
+                    constraint.IsLocked = False
+                    updatedCount = updatedCount + 1
+                    ECA_Log("    Mate constraint unlocked for re-evaluation: " & constraint.Name)
+                End If
+            Next
+        End If
+    Next
+
+    ' Drive assembly rebuild to re-solve all constraints
+    asmDoc.Rebuild2(True)
+    ECA_Log("Assembly rebuilt. " & updatedCount & " constraint(s) re-evaluated.")
+    ECA_UpdateAssemblyConstraints = updatedCount
+End Function
+
+' ─────────────────────────────────────────────────────────────
+' SECTION 6 — iProperties (BOM) UPDATE
+' ─────────────────────────────────────────────────────────────
+
+Sub ECA_UpdateiProperties(partDoc As PartDocument,
+                           wall_before As Double, wall_after As Double,
+                           delta_mm As Double)
+    Dim props As PropertySets = partDoc.PropertySets
+
+    ' Summary Info property set
+    Dim summarySet As PropertySet = props.Item("Inventor Summary Information")
+    summarySet.Item("Comments").Value = "ECA EWR: Wall reduced " & wall_before &
+                                         "→" & wall_after & "mm (−" & delta_mm & "mm)"
+
+    ' Design Tracking Properties
+    Dim trackSet As PropertySet = props.Item("Design Tracking Properties")
+    trackSet.Item("Revision Number").Value = "C"
+    trackSet.Item("Designer").Value       = "ECA Auto (STARK-X / SREC)"
+
+    ' Custom property set — ECA metadata
+    Dim customSet As PropertySet
+    Try
+        customSet = props.Item("ECA_Properties")
+    Catch
+        customSet = props.Add("ECA_Properties")
+    End Try
+
+    customSet.Add(wall_after,  "ECA_WallThickness_mm", kVtR8)
+    customSet.Add("MAJOR",     "ECA_RevisionType",     kVtBSTR)
+    customSet.Add("M1 — Wall thickness >5% on pressure boundary", "ECA_Rule", kVtBSTR)
+    customSet.Add(Format(Now, "DD/MM/YYYY HH:MM"), "ECA_Timestamp", kVtBSTR)
+
+    ECA_Log("iProperties updated: Revision=C, Comment=ECA EWR, Custom ECA metadata written.")
+End Sub
+
+' ─────────────────────────────────────────────────────────────
+' SECTION 7 — EXPORT (.STEP + .IPT)
+' ─────────────────────────────────────────────────────────────
+
+Sub ECA_Export(partDoc As PartDocument, wall_after As Double)
+    Dim basePath As String = Left(partDoc.FullFileName,
+                                  Len(partDoc.FullFileName) - 4)
+    Dim stepPath As String = basePath & "_ECA_Rev-C_Wall" &
+                             Format(wall_after, "0.0") & "mm.step"
+    Dim iptPath  As String = basePath & "_ECA_Rev-C_Wall" &
+                             Format(wall_after, "0.0") & "mm.ipt"
+
+    ' Export STEP (AP214)
+    Dim transManager As TranslatorAddIn
+    transManager = DirectCast(partDoc.ComponentDefinition.Document
+                              .ReferenceKeyManager, TranslatorAddIn)
+
+    Dim translator As FileSaveAs = partDoc.FileSaveAs
+    translator.AddToGroup      = False
+
+    ' STEP AP214 export
+    Dim stepOptions As TranslationContext
+    stepOptions = ThisApplication.TransientObjects.CreateTranslationContext()
+    stepOptions.Type = kFileBrowseIDs
+
+    Dim dataMedia As DataMedium
+    dataMedia      = ThisApplication.TransientObjects.CreateDataMedium()
+    dataMedia.FileName = stepPath
+
+    translator.SaveAs(stepPath, False)
+    ECA_Log("STEP exported: " & stepPath)
+
+    ' Save revised IPT copy
+    partDoc.SaveAs(iptPath, False)
+    ECA_Log("IPT saved: " & iptPath)
+End Sub
+
+' ─────────────────────────────────────────────────────────────
+' SECTION 8 — CHANGE IMPACT SUMMARY
+' ─────────────────────────────────────────────────────────────
+
+Sub ECA_PrintSummary(wall_before As Double, wall_after As Double,
+                     delta_mm As Double, sf_after As Double,
+                     constraintsUpdated As Integer)
+    Dim id_before As Double = OD_MM - (2 * wall_before)
+    Dim id_after  As Double = OD_MM - (2 * wall_after)
+
+    ECA_Log("═══════════════════════════════════════════════")
+    ECA_Log("ECA CHANGE IMPACT SUMMARY — Inventor Phase 2")
+    ECA_Log("═══════════════════════════════════════════════")
+    ECA_Log("EWR      : " & EWR_TEXT)
+    ECA_Log("Part     : " & EWR_PART)
+    ECA_Log("Parameter: " & EWR_PARAM)
+    ECA_Log("Wall     : " & wall_before & " → " & wall_after & " mm")
+    ECA_Log("ID       : " & id_before   & " → " & id_after   & " mm")
+    ECA_Log("OD       : " & OD_MM & " mm (unchanged)")
+    ECA_Log("SF After : " & Format(sf_after, "0.00") & " (min 2.5 ASME VIII)")
+    ECA_Log("Revision : B → C (MAJOR)")
+    ECA_Log("Constraints re-evaluated: " & constraintsUpdated)
+    ECA_Log("Status   : COMPLETE ✅")
+    ECA_Log("═══════════════════════════════════════════════")
+End Sub
+
+' ─────────────────────────────────────────────────────────────
+' SECTION 9 — MAIN ENTRY POINT (iLogic Rule execution starts here)
+' ─────────────────────────────────────────────────────────────
+
+ECA_Log("════════════════════════════════════════════")
+ECA_Log("ECA Phase 2 — Autodesk Inventor iLogic")
+ECA_Log("STARK-X | SREC | SLB Hackathon 2026")
+ECA_Log("════════════════════════════════════════════")
+ECA_Log("EWR: " & EWR_TEXT)
+
+' ── Get the active part document ────────────────────────────
+Dim oPartDoc As PartDocument
+Try
+    oPartDoc = DirectCast(ThisApplication.ActiveDocument, PartDocument)
+Catch
+    MsgBox("ECA Error: Please open a Part document (.ipt) first.", vbCritical, "ECA")
+    Return
+End Try
+
+' ── Compute new wall value ───────────────────────────────────
+Dim params As Parameters = oPartDoc.ComponentDefinition.Parameters
+Dim wall_before As Double = params.Item(EWR_PARAM).Value * 10.0  ' cm→mm
+Dim wall_after  As Double
+If EWR_DIRECTION = "DECREASE" Then
+    wall_after = wall_before - EWR_DELTA_MM
+Else
+    wall_after = wall_before + EWR_DELTA_MM
+End If
+
+' ── Step 1: Safety validation BEFORE modifying ──────────────
+If Not ECA_ValidateSafety(wall_before, wall_after) Then
+    MsgBox("ECA REJECTED: Barlow safety factor below ASME VIII minimum (2.5)." & vbCrLf &
+           "No geometry changes applied.", vbCritical, "ECA Safety Rejection")
+    Return
+End If
+
+' ── Step 2: Update the parametric dimension ─────────────────
+Dim actualNew As Double = ECA_UpdateDimension(oPartDoc, EWR_PARAM, EWR_DELTA_MM, EWR_DIRECTION)
+If actualNew < 0 Then Return
+
+' ── Step 3: Regenerate model and validate geometry ───────────
+If Not ECA_RegenerateAndValidate(oPartDoc) Then
+    MsgBox("ECA WARNING: Model regeneration produced errors. Review feature tree.", vbExclamation, "ECA")
+End If
+
+' ── Step 4: Update assembly constraints ─────────────────────
+Dim constraintsUpdated As Integer = 0
+Dim asmPath As String = Left(oPartDoc.FullFileName,
+                              InStrRev(oPartDoc.FullFileName, "\")) & "ValveAssembly.iam"
+If FileExists(asmPath) Then
+    Dim oAsmDoc As AssemblyDocument
+    oAsmDoc = ThisApplication.Documents.Open(asmPath, False)
+    constraintsUpdated = ECA_UpdateAssemblyConstraints(oAsmDoc, wall_after)
+    oAsmDoc.Save()
+    ECA_Log("Assembly saved: " & asmPath)
+Else
+    ECA_Log("Assembly IAM not found at: " & asmPath & " — skipping constraint update")
+End If
+
+' ── Step 5: Update iProperties (BOM metadata) ───────────────
+ECA_UpdateiProperties(oPartDoc, wall_before, wall_after, EWR_DELTA_MM)
+
+' ── Step 6: Export STEP + revised IPT ───────────────────────
+ECA_Export(oPartDoc, wall_after)
+
+' ── Step 7: Save the modified part ──────────────────────────
+oPartDoc.Save()
+ECA_Log("Part document saved.")
+
+' ── Step 8: Print summary ────────────────────────────────────
+Dim sf_final As Double = Barlow_SF(wall_after, OD_MM, YIELD_STRENGTH_MPA, DESIGN_PRESSURE_BAR)
+ECA_PrintSummary(wall_before, wall_after, EWR_DELTA_MM, sf_final, constraintsUpdated)
+
+MsgBox("ECA Phase 2 Complete!" & vbCrLf & vbCrLf &
+       "Wall: " & wall_before & " → " & wall_after & " mm" & vbCrLf &
+       "Safety Factor: " & Format(sf_final, "0.00") & " ✅ PASS" & vbCrLf &
+       "Revision: B → C (MAJOR)" & vbCrLf & vbCrLf &
+       "STEP + IPT exported successfully.", vbInformation, "ECA — STARK-X")

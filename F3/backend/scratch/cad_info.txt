@@ -1,0 +1,66 @@
+--- CAD INFO ---
+Document: valve_assembly
+Objects:
+  - PipeLeft_Outer | PipeLeft_Outer | Part::Cylinder
+    PROPS: Radius=75.0, Height=200.0
+  - PipeLeft_Inner | PipeLeft_Inner | Part::Cylinder
+    PROPS: Radius=63.0, Height=202.0
+  - PipeLeft | PipeLeft | Part::Cut
+  - PipeRight_Outer | PipeRight_Outer | Part::Cylinder
+    PROPS: Radius=75.0, Height=200.0
+  - PipeRight_Inner | PipeRight_Inner | Part::Cylinder
+    PROPS: Radius=63.0, Height=202.0
+  - PipeRight | PipeRight | Part::Cut
+  - ValveBody_Outer | OuterDiameter | Part::Cylinder
+    PROPS: Radius=95.0, Height=80.0
+  - ValveBody_Inner | InnerDiameter | Part::Cylinder
+    PROPS: Radius=63.0, Height=82.0
+  - ValveBody | ValveBody | Part::Cut
+  - FlangeLeft_Outer | FlangeLeft_Outer | Part::Cylinder
+    PROPS: Radius=115.0, Height=22.0
+  - FlangeLeft_Inner | FlangeLeft_Inner | Part::Cylinder
+    PROPS: Radius=63.0, Height=24.0
+  - FlangeLeft | FlangeLeft | Part::Cut
+  - FlangeRight_Outer | FlangeRight_Outer | Part::Cylinder
+    PROPS: Radius=115.0, Height=22.0
+  - FlangeRight_Inner | FlangeRight_Inner | Part::Cylinder
+    PROPS: Radius=63.0, Height=24.0
+  - FlangeRight | FlangeRight | Part::Cut
+  - BoltLeft_1 | BoltLeft_1 | Part::Cylinder
+    PROPS: Radius=8.0, Height=50.0
+  - BoltRight_1 | BoltRight_1 | Part::Cylinder
+    PROPS: Radius=8.0, Height=50.0
+  - BoltLeft_2 | BoltLeft_2 | Part::Cylinder
+    PROPS: Radius=8.0, Height=50.0
+  - BoltRight_2 | BoltRight_2 | Part::Cylinder
+    PROPS: Radius=8.0, Height=50.0
+  - BoltLeft_3 | BoltLeft_3 | Part::Cylinder
+    PROPS: Radius=8.0, Height=50.0
+  - BoltRight_3 | BoltRight_3 | Part::Cylinder
+    PROPS: Radius=8.0, Height=50.0
+  - BoltLeft_4 | BoltLeft_4 | Part::Cylinder
+    PROPS: Radius=8.0, Height=50.0
+  - BoltRight_4 | BoltRight_4 | Part::Cylinder
+    PROPS: Radius=8.0, Height=50.0
+  - BoltLeft_5 | BoltLeft_5 | Part::Cylinder
+    PROPS: Radius=8.0, Height=50.0
+  - BoltRight_5 | BoltRight_5 | Part::Cylinder
+    PROPS: Radius=8.0, Height=50.0
+  - BoltLeft_6 | BoltLeft_6 | Part::Cylinder
+    PROPS: Radius=8.0, Height=50.0
+  - BoltRight_6 | BoltRight_6 | Part::Cylinder
+    PROPS: Radius=8.0, Height=50.0
+  - BoltLeft_7 | BoltLeft_7 | Part::Cylinder
+    PROPS: Radius=8.0, Height=50.0
+  - BoltRight_7 | BoltRight_7 | Part::Cylinder
+    PROPS: Radius=8.0, Height=50.0
+  - BoltLeft_8 | BoltLeft_8 | Part::Cylinder
+    PROPS: Radius=8.0, Height=50.0
+  - BoltRight_8 | BoltRight_8 | Part::Cylinder
+    PROPS: Radius=8.0, Height=50.0
+  - ButterflyDisc | ButterflyDisc | Part::Cylinder
+    PROPS: Radius=62.0, Height=6.0
+  - ValveStem | ValveStem | Part::Cylinder
+    PROPS: Radius=11.0, Height=250.0
+  - Handle | Handle | Part::Box
+    PROPS: Height=12.0, Length=120.0

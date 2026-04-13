@@ -1,0 +1,38 @@
+{
+  "major_triggers": [
+    {"id": "MJ-01", "condition": "wall_thickness_change_pct > 10", "description": "Wall thickness change exceeds 10% ASME threshold", "rationale": "Pressure vessel re-qualification required per ASME VIII"},
+    {"id": "MJ-02", "condition": "material_change == true", "description": "Material substitution detected", "rationale": "Full re-qualification, PMI, weld procedure review required"},
+    {"id": "MJ-03", "condition": "pressure_retaining AND delta_pct > 5", "description": "Pressure-retaining part modified > 5%", "rationale": "Safety-critical boundary re-certification per API 6D"},
+    {"id": "MJ-04", "condition": "mating_interface_change == true", "description": "Mating interface dimension modified", "rationale": "Assembly fit/function impacted — full re-validation required"},
+    {"id": "MJ-05", "condition": "affected_assemblies > 2", "description": "Change propagates to 3+ assemblies", "rationale": "System-level re-verification required"}
+  ],
+  "minor_triggers": [
+    {"id": "MN-01", "condition": "cosmetic", "description": "Cosmetic or marking change"},
+    {"id": "MN-02", "condition": "tolerance < 5pct", "description": "Minor tolerance tightening"},
+    {"id": "MN-03", "condition": "non_critical < 2pct", "description": "Small non-critical dimensional change"},
+    {"id": "MN-04", "condition": "drawing_note", "description": "Drawing note or callout update"}
+  ],
+  "effort_matrix_hours": {
+    "minor_single_part": 4,
+    "minor_with_assembly": 8,
+    "minor_multi_part": 12,
+    "major_single_part": 20,
+    "major_safety_critical": 32,
+    "major_multi_part": 40,
+    "major_multi_assembly": 56,
+    "major_multi_assembly_safety_critical": 80
+  },
+  "effort_breakdown_pct": {
+    "CAD Modification": 30,
+    "Engineering Review and Approval": 25,
+    "Document Updates and BOM": 20,
+    "Inspection Plan Update": 10,
+    "Validation and Testing": 15
+  },
+  "validation": {
+    "min_wall_thickness_mm": 6.0,
+    "max_wall_reduction_pct": 25.0,
+    "min_safety_factor": 2.5,
+    "ss316_allowable_mpa": 138
+  }
+}

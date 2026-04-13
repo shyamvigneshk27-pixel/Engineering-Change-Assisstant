@@ -1,0 +1,114 @@
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Rajdhani", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-bg: #0A0C0F;
+  --color-surface: #10141A;
+  --color-surface-2: #161C24;
+  --color-border: #1E2733;
+  --color-accent: #00D4FF;
+  --color-danger: #FF4444;
+  --color-warn: #FFB800;
+  --color-success: #00E676;
+  --color-text-primary: #E8EDF2;
+  --color-text-muted: #5A6A7E;
+}
+
+@layer base {
+  body {
+    @apply bg-bg text-text-primary font-sans selection:bg-accent/30 selection:text-accent;
+    overflow-x: hidden;
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-bg;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-accent/50 rounded-full hover:bg-accent;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-surface border border-border rounded-sm transition-all duration-300 hover:shadow-[0_0_0_1px_rgba(0,212,255,0.13)_inset];
+  }
+
+  .btn-primary {
+    @apply bg-accent text-bg font-bold py-3 px-6 rounded-sm transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,212,255,0.4)] active:scale-[0.98] uppercase tracking-wider;
+  }
+
+  .btn-outline {
+    @apply border border-accent text-accent font-semibold py-2 px-4 rounded-sm transition-all duration-300 hover:bg-accent/10 hover:shadow-[0_0_10px_rgba(0,212,255,0.2)];
+  }
+
+  .label-muted {
+    @apply text-text-muted text-[10px] font-semibold uppercase tracking-[0.12em] font-sans;
+  }
+
+  .data-mono {
+    @apply font-mono text-sm;
+  }
+}
+
+/* Scanning Line Animation */
+.scan-line {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: rgba(0, 212, 255, 0.3);
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
+  z-index: 9999;
+  pointer-events: none;
+  animation: scan-once 2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes scan-once {
+  0% { transform: translateY(-100%); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(100vh); opacity: 0; }
+}
+
+/* Shimmer Effect */
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.shimmer::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -60%;
+  width: 20%;
+  height: 200%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  transform: rotate(25deg);
+  transition: 0.8s;
+}
+.shimmer:hover::after {
+  left: 120%;
+}
+
+/* Diagonal Grid Pattern */
+.sidebar-grid {
+  background-image: radial-gradient(circle at 1px 1px, rgba(30, 39, 51, 0.15) 1px, transparent 0);
+  background-size: 16px 16px;
+}
+
+/* Custom Scrollbar */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

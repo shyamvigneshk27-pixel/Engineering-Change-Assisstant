@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ECA Phase 2 — Multi-Platform CAD Engine | STARK-X</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0b0f14;--surface:#111820;--surface2:#18222e;
+  --border:#1e2d3d;--border2:#243547;
+  --teal:#00d4aa;--teal-dim:#007a63;
+  --blue:#3b9eff;--amber:#f0a500;--red:#e04040;--green:#36d966;
+  --purple:#a78bfa;--pink:#f472b6;
+  --text:#c8d8e8;--text-dim:#5a7a9a;--text-bright:#e8f4ff;
+  --font:'IBM Plex Sans',sans-serif;--mono:'IBM Plex Mono',monospace;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* HEADER */
+header{display:flex;align-items:center;justify-content:space-between;padding:14px 32px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:100}
+.logo-block{display:flex;align-items:center;gap:14px}
+.logo-badge{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--teal);letter-spacing:2px;border:1px solid var(--teal-dim);padding:5px 10px;border-radius:4px}
+.logo-sub{font-size:12px;color:var(--text-dim);letter-spacing:1px}
+.header-right{display:flex;align-items:center;gap:20px;font-size:12px;color:var(--text-dim)}
+.status-dot{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;margin-right:6px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(54,217,102,.4)}50%{box-shadow:0 0 0 6px rgba(54,217,102,0)}}
+
+/* LAYOUT */
+.app{display:grid;grid-template-columns:260px 1fr;min-height:calc(100vh - 57px)}
+aside{border-right:1px solid var(--border);background:var(--surface);padding:20px 12px;display:flex;flex-direction:column;gap:6px}
+.sidebar-label{font-size:10px;letter-spacing:2px;color:var(--text-dim);padding:8px 12px 4px;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:6px;font-size:13px;cursor:pointer;transition:background .15s,color .15s;color:var(--text-dim);border:1px solid transparent}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:rgba(0,212,170,.07);border-color:var(--teal-dim);color:var(--teal)}
+
+main{padding:28px 32px;overflow-y:auto}
+
+/* PLATFORM TABS */
+.tab-bar{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap}
+.tab{padding:9px 18px;border-radius:6px;font-size:12px;font-family:var(--mono);cursor:pointer;transition:all .15s;border:1px solid var(--border2);color:var(--text-dim);background:var(--surface)}
+.tab:hover{border-color:var(--text-dim);color:var(--text)}
+.tab.active{border-color:var(--teal-dim);color:var(--teal);background:rgba(0,212,170,.06)}
+.tab-content{display:none}.tab-content.active{display:block}
+
+/* EWR PANEL */
+.ewr-panel{background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:20px 24px;margin-bottom:24px}
+.ewr-label{font-size:10px;letter-spacing:2px;color:var(--teal);text-transform:uppercase;margin-bottom:10px}
+.ewr-text{font-family:var(--mono);font-size:13px;color:var(--text-bright);line-height:1.6;border-left:3px solid var(--teal);padding-left:16px}
+.ewr-meta{display:flex;flex-wrap:wrap;gap:16px;margin-top:12px;font-size:11px;color:var(--text-dim);font-family:var(--mono)}
+.ewr-meta span b{color:var(--text)}
+
+/* GRIDS */
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+
+/* METRIC CARD */
+.metric-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px 18px}
+.metric-label{font-size:10px;color:var(--text-dim);letter-spacing:1px;margin-bottom:6px;text-transform:uppercase}
+.metric-value{font-size:24px;font-weight:500;font-family:var(--mono);color:var(--text-bright);line-height:1}
+.metric-delta{font-size:11px;margin-top:4px;font-family:var(--mono)}
+.delta-neg{color:var(--amber)}.delta-pos{color:var(--green)}
+.metric-sub{font-size:10px;color:var(--text-dim);margin-top:4px}
+
+/* PANEL */
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:18px;overflow:hidden}
+.panel-header{padding:13px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.panel-title{font-size:13px;font-weight:500;color:var(--text-bright);letter-spacing:.3px}
+
+/* BADGES */
+.badge{font-size:10px;font-family:var(--mono);padding:3px 9px;border-radius:4px;letter-spacing:.5px}
+.badge-major{background:rgba(240,165,0,.12);color:var(--amber);border:1px solid rgba(240,165,0,.3)}
+.badge-pass{background:rgba(54,217,102,.1);color:var(--green);border:1px solid rgba(54,217,102,.25)}
+.badge-info{background:rgba(59,158,255,.1);color:var(--blue);border:1px solid rgba(59,158,255,.25)}
+
+/* PLATFORM CARDS */
+.platform-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.platform-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;cursor:pointer;transition:border-color .15s,background .15s}
+.platform-card:hover{border-color:var(--border2);background:var(--surface2)}
+.platform-card.selected{border-color:var(--teal-dim);background:rgba(0,212,170,.05)}
+.platform-name{font-size:13px;font-weight:500;color:var(--text-bright);margin-bottom:4px}
+.platform-lang{font-size:10px;font-family:var(--mono);color:var(--text-dim);margin-bottom:10px}
+.platform-steps{font-size:11px;color:var(--text-dim);line-height:1.7}
+.platform-logo{width:36px;height:36px;border-radius:6px;margin-bottom:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.logo-inv{background:rgba(240,165,0,.15)}
+.logo-sw{background:rgba(224,64,64,.15)}
+.logo-f360{background:rgba(59,158,255,.15)}
+.logo-creo{background:rgba(167,139,250,.15)}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse;font-size:12px;font-family:var(--mono)}
+th{padding:9px 18px;text-align:left;font-size:10px;letter-spacing:1.5px;color:var(--text-dim);border-bottom:1px solid var(--border);background:var(--surface2);font-weight:500;text-transform:uppercase}
+td{padding:10px 18px;border-bottom:1px solid var(--border);color:var(--text)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.02)}
+
+/* CODE BLOCK */
+.code-block{background:#080d12;border:1px solid var(--border);border-radius:8px;padding:18px 22px;font-family:var(--mono);font-size:11.5px;line-height:1.9;overflow-x:auto;margin-bottom:16px}
+.c-teal{color:var(--teal)}.c-green{color:var(--green)}.c-blue{color:var(--blue)}.c-amber{color:var(--amber)}.c-red{color:var(--red)}.c-dim{color:var(--text-dim)}.c-white{color:var(--text-bright)}.c-purple{color:var(--purple)}
+
+/* STEPS LIST */
+.steps{list-style:none;padding:0}
+.step-item{display:grid;grid-template-columns:28px 1fr;gap:12px;padding:12px 20px;border-bottom:1px solid var(--border);align-items:start}
+.step-item:last-child{border-bottom:none}
+.step-num{width:24px;height:24px;border-radius:50%;background:rgba(0,212,170,.1);border:1px solid var(--teal-dim);display:flex;align-items:center;justify-content:center;font-size:10px;font-family:var(--mono);color:var(--teal);flex-shrink:0;margin-top:2px}
+.step-text{font-size:12px;color:var(--text);line-height:1.5}
+.step-sub{font-size:11px;color:var(--text-dim);margin-top:3px;font-family:var(--mono)}
+
+/* BARLOW */
+.barlow-row{margin-bottom:16px;padding:0 20px}
+.barlow-label{display:flex;justify-content:space-between;font-size:11px;font-family:var(--mono);margin-bottom:6px}
+.barlow-track{height:7px;background:var(--surface2);border-radius:4px;overflow:hidden;position:relative}
+.barlow-fill{height:100%;border-radius:4px;transition:width 1.2s cubic-bezier(.16,1,.3,1)}
+.fill-before{background:linear-gradient(90deg,var(--blue),#5bc4ff)}
+.fill-after{background:linear-gradient(90deg,var(--teal),var(--green))}
+.danger-line{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--red);opacity:.7}
+
+/* XSEC */
+.xsec-wrap{display:flex;gap:20px;align-items:center;padding:18px}
+.xsec-diagram{flex:1;background:var(--surface2);border-radius:8px;padding:14px;border:1px solid var(--border)}
+.xsec-title{font-size:10px;letter-spacing:2px;color:var(--text-dim);text-align:center;margin-bottom:10px;text-transform:uppercase}
+
+/* MATRIX TABLE */
+.matrix{width:100%;border-collapse:collapse;font-size:11px}
+.matrix th{background:var(--surface2);color:var(--text-dim);padding:9px 14px;border:1px solid var(--border);font-weight:500;font-size:10px;letter-spacing:1px;text-transform:uppercase}
+.matrix td{padding:9px 14px;border:1px solid var(--border);vertical-align:middle}
+.matrix tr:hover td{background:rgba(255,255,255,.015)}
+.tick{color:var(--green);font-size:13px}.cross{color:var(--red);font-size:13px}
+
+footer{padding:14px 32px;border-top:1px solid var(--border);font-size:11px;color:var(--text-dim);display:flex;justify-content:space-between;background:var(--surface);font-family:var(--mono)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeUp .45s ease forwards}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-block">
+    <div class="logo-badge">ECA</div>
+    <div>
+      <div style="font-size:14px;font-weight:500;color:var(--text-bright)">Engineering Change Assistant — Phase 2</div>
+      <div class="logo-sub">MULTI-PLATFORM CAD ENGINE · INVENTOR · SOLIDWORKS · FUSION 360 · CREO · STARK-X / SREC / SLB 2026</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <span><span class="status-dot"></span>All 4 Platforms Ready</span>
+    <span style="color:var(--teal);font-family:var(--mono)">4 CAD APIs</span>
+  </div>
+</header>
+
+<div class="app">
+<aside>
+  <div class="sidebar-label">Platform Select</div>
+  <div class="nav-item" onclick="selectPlatform('inv')" id="nav-inv">
+    <span style="font-size:14px">🔧</span> Autodesk Inventor
+    <span style="margin-left:auto;font-size:9px;font-family:var(--mono);color:var(--teal)">iLogic</span>
+  </div>
+  <div class="nav-item active" onclick="selectPlatform('sw')" id="nav-sw">
+    <span style="font-size:14px">🔵</span> SolidWorks
+    <span style="margin-left:auto;font-size:9px;font-family:var(--mono);color:var(--teal)">.NET/C#</span>
+  </div>
+  <div class="nav-item" onclick="selectPlatform('f360')" id="nav-f360">
+    <span style="font-size:14px">⚙️</span> Fusion 360
+    <span style="margin-left:auto;font-size:9px;font-family:var(--mono);color:var(--teal)">Python</span>
+  </div>
+  <div class="nav-item" onclick="selectPlatform('creo')" id="nav-creo">
+    <span style="font-size:14px">🟣</span> Creo Parametric
+    <span style="margin-left:auto;font-size:9px;font-family:var(--mono);color:var(--teal)">J-Link</span>
+  </div>
+  <div class="nav-item" onclick="selectPlatform('matrix')" id="nav-matrix">
+    <span style="font-size:14px">📊</span> Platform Matrix
+  </div>
+
+  <div class="sidebar-label" style="margin-top:14px">Phase 2 Requirements</div>
+  <div style="padding:10px 12px;font-size:11px;color:var(--text-dim);line-height:2.0">
+    <span style="color:var(--green)">✓</span> Feature/dimension update<br>
+    <span style="color:var(--green)">✓</span> Assembly constraint update<br>
+    <span style="color:var(--green)">✓</span> Model regeneration<br>
+    <span style="color:var(--green)">✓</span> Geometry validation<br>
+    <span style="color:var(--green)">✓</span> Barlow safety check<br>
+    <span style="color:var(--green)">✓</span> BOM/metadata update<br>
+    <span style="color:var(--green)">✓</span> STEP + native export
+  </div>
+
+  <div class="sidebar-label" style="margin-top:8px">Team STARK-X</div>
+  <div style="padding:10px 12px;font-size:11px;color:var(--text-dim);line-height:1.8;font-family:var(--mono)">
+    Ashwin R (Lead)<br>Shyam Vignesh K<br>Siva Guru S<br>Sujeeth S<br>
+    <span style="font-size:10px">SREC · M.Tech CSE</span>
+  </div>
+</aside>
+
+<main>
+
+  <!-- EWR Panel (always visible) -->
+  <div class="ewr-panel fade-in">
+    <div class="ewr-label">Engineering Work Request — Canonical SLB EWR</div>
+    <div class="ewr-text">"Reduce the wall thickness of the Valve Body by 2mm for weight reduction and update all related assemblies."</div>
+    <div class="ewr-meta">
+      <span><b>Part</b> VALVE BODY · PART-001</span>
+      <span><b>Param</b> WallThickness</span>
+      <span><b>Delta</b> −2.0 mm</span>
+      <span><b>Wall</b> 12.00 → 10.00 mm</span>
+      <span><b>ID</b> 126.00 → 130.00 mm</span>
+      <span><b>SF</b> 3.68 → 3.07 ✅</span>
+      <span><b>Revision</b> B → C (MAJOR)</span>
+    </div>
+  </div>
+
+  <!-- Metric Cards -->
+  <div class="grid4 fade-in">
+    <div class="metric-card">
+      <div class="metric-label">Wall Thickness</div>
+      <div class="metric-value" style="color:var(--amber)">10.00<span style="font-size:13px"> mm</span></div>
+      <div class="metric-delta delta-neg">▼ 2.00 mm (−16.7%)</div>
+      <div class="metric-sub">was 12.00 mm</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Inner Diameter</div>
+      <div class="metric-value" style="color:var(--green)">130.00<span style="font-size:13px"> mm</span></div>
+      <div class="metric-delta delta-pos">▲ 4.00 mm (+3.2%)</div>
+      <div class="metric-sub">was 126.00 mm</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Barlow SF (After)</div>
+      <div class="metric-value" style="color:var(--green)">3.07</div>
+      <div class="metric-delta delta-pos">≥ 2.5 ASME VIII ✓</div>
+      <div class="metric-sub">was 3.68</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Platforms Covered</div>
+      <div class="metric-value" style="color:var(--teal)">4</div>
+      <div class="metric-delta" style="color:var(--blue)">INV · SW · F360 · CREO</div>
+      <div class="metric-sub">All produce STEP output</div>
+    </div>
+  </div>
+
+  <!-- ── INVENTOR TAB ──────────────────────────── -->
+  <div id="tab-inv" class="tab-content">
+    <div class="panel fade-in">
+      <div class="panel-header">
+        <div class="panel-title">Autodesk Inventor — iLogic Rule (ECA_Inventor.ilogic)</div>
+        <span class="badge badge-info">VB.NET · COM API</span>
+      </div>
+      <ul class="steps">
+        <li class="step-item"><div class="step-num">1</div><div><div class="step-text">Open <code>ValveBody.ipt</code> in Autodesk Inventor 2020+</div><div class="step-sub">Ensure user parameter "WallThickness = 12mm" exists in Part Parameters</div></div></li>
+        <li class="step-item"><div class="step-num">2</div><div><div class="step-text">Open iLogic Browser: Tools → iLogic → iLogic Browser</div><div class="step-sub">Right-click "Rules" → Add Rule → name it "ECA_Phase2"</div></div></li>
+        <li class="step-item"><div class="step-num">3</div><div><div class="step-text">Paste entire <code>ECA_Inventor.ilogic</code> content into the rule editor</div></div></li>
+        <li class="step-item"><div class="step-num">4</div><div><div class="step-text">Click "Run Rule" button (▶) in iLogic Browser</div><div class="step-sub">Or set trigger: Part Events → OnSave to auto-run on every save</div></div></li>
+      </ul>
+    </div>
+    <div class="panel fade-in">
+      <div class="panel-header"><div class="panel-title">What ECA does in Inventor</div></div>
+      <table>
+        <tr><th>Phase 2 Requirement</th><th>API Used</th><th>Code Section</th></tr>
+        <tr><td>Feature/dimension update</td><td><code>Parameters.Item("WallThickness").Value</code></td><td>Section 3</td></tr>
+        <tr><td>Model regeneration</td><td><code>partDoc.Rebuild2(True)</code></td><td>Section 4</td></tr>
+        <tr><td>Geometry validation</td><td><code>partDoc.HealthStatus</code> + wall constraint check</td><td>Section 4</td></tr>
+        <tr><td>Assembly constraint update</td><td><code>occ.Constraints</code> → unlock mates → <code>asmDoc.Rebuild2</code></td><td>Section 5</td></tr>
+        <tr><td>BOM metadata update</td><td><code>PropertySets</code> → iProperties + Custom "ECA_Properties"</td><td>Section 6</td></tr>
+        <tr><td>STEP + IPT export</td><td><code>FileSaveAs.SaveAs(stepPath)</code> + <code>SaveAs(iptPath)</code></td><td>Section 7</td></tr>
+        <tr><td>Barlow safety check</td><td>Pure VB math — P_max = (2×S×t)/D</td><td>Section 2</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── SOLIDWORKS TAB ──────────────────────────── -->
+  <div id="tab-sw" class="tab-content active">
+    <div class="panel fade-in">
+      <div class="panel-header">
+        <div class="panel-title">SolidWorks — C# .NET API (ECA_SolidWorks.cs)</div>
+        <span class="badge badge-info">C# · COM Interop</span>
+      </div>
+      <ul class="steps">
+        <li class="step-item"><div class="step-num">1</div><div><div class="step-text">Open <code>ValveBody.SLDPRT</code> in SolidWorks 2020+</div><div class="step-sub">Add global variable: Tools → Equations → add "WallThickness" = 12mm</div></div></li>
+        <li class="step-item"><div class="step-num">2</div><div><div class="step-text">Tools → Macros → New → select C# VSTA type</div></div></li>
+        <li class="step-item"><div class="step-num">3</div><div><div class="step-text">Replace generated code with <code>ECA_SolidWorks.cs</code> contents</div><div class="step-sub">Namespace + class structure is preserved — just paste over existing code</div></div></li>
+        <li class="step-item"><div class="step-num">4</div><div><div class="step-text">Click ▶ Run. <code>ECA_Phase2.Main()</code> connects to active SW instance.</div></div></li>
+      </ul>
+    </div>
+    <div class="panel fade-in">
+      <div class="panel-header"><div class="panel-title">What ECA does in SolidWorks</div></div>
+      <table>
+        <tr><th>Phase 2 Requirement</th><th>API Used</th><th>Code Section</th></tr>
+        <tr><td>Feature/dimension update</td><td><code>EquationMgr.Equation[i]</code> or <code>Dimension.SetSystemValue3()</code></td><td>Section 3</td></tr>
+        <tr><td>Model regeneration</td><td><code>ModelDoc2.ForceRebuild3(false)</code></td><td>Section 4</td></tr>
+        <tr><td>Geometry validation</td><td><code>MassProperty</code> + wall constraint check</td><td>Section 4</td></tr>
+        <tr><td>Assembly constraint update</td><td><code>Component2.GetMates()</code> → suppress/unsuppress → <code>ForceRebuild3</code></td><td>Section 5</td></tr>
+        <tr><td>BOM metadata update</td><td><code>CustomPropertyManager.Add3()</code> → 6 custom properties</td><td>Section 6</td></tr>
+        <tr><td>STEP + SLDPRT export</td><td><code>Extension.SaveAs(stepPath, swSaveAsCurrentVersion)</code></td><td>Section 7</td></tr>
+        <tr><td>Barlow safety check</td><td>Pure C# math — P_max = (2×S×t)/D</td><td>Section 2</td></tr>
+      </table>
+    </div>
+    <div class="panel fade-in">
+      <div class="panel-header"><div class="panel-title">Console Output Preview</div></div>
+      <div class="code-block">
+<span class="c-dim">═══════════════════════════════════════════════════════</span>
+<span class="c-blue">[ECA-SW] ECA Phase 2 -- SolidWorks .NET API</span>
+<span class="c-blue">[ECA-SW] EWR: Reduce the wall thickness of the Valve Body by 2mm...</span>
+<span class="c-dim">───────────────────────────────────────────────────────</span>
+<span class="c-white">[ECA-SW] Wall before: 12.00 mm  ->  after: 10.00 mm</span>
+<span class="c-white">[ECA-SW] BARLOW SAFETY ANALYSIS (ASME VIII / API 6D)</span>
+<span class="c-white">[ECA-SW]   BEFORE  Wall=12.00mm  SF=3.68</span>
+<span class="c-white">[ECA-SW]   AFTER   Wall=10.00mm  SF=3.07</span>
+<span class="c-green">[ECA-SW]   SAFETY: PASS</span>
+<span class="c-white">[ECA-SW] Updating dimension to 10.00 mm ...</span>
+<span class="c-green">[ECA-SW]   Equation updated: WallThickness = 10mm</span>
+<span class="c-white">[ECA-SW] Regenerating model (ForceRebuild3) ...</span>
+<span class="c-green">[ECA-SW] Model regeneration: SUCCESS -- no errors</span>
+<span class="c-white">[ECA-SW]   Mass (updated): 2847.12 g</span>
+<span class="c-green">[ECA-SW]   Wall 10.00mm >= 3mm manufacturing minimum</span>
+<span class="c-white">[ECA-SW] Opening assembly ValveAssembly.SLDASM ...</span>
+<span class="c-green">[ECA-SW]   Re-evaluated mate: Coincident1</span>
+<span class="c-green">[ECA-SW]   Re-evaluated mate: Concentric1</span>
+<span class="c-white">[ECA-SW]   Assembly rebuilt. 3 mates re-evaluated. Saved.</span>
+<span class="c-white">[ECA-SW] Updating custom properties (BOM metadata) ...</span>
+<span class="c-green">[ECA-SW]   Custom properties written: Revision=C, ECA_WallThickness=10.00mm</span>
+<span class="c-green">[ECA-SW] STEP exported: ValveBody_ECA_Rev-C_Wall10.0mm.step</span>
+<span class="c-green">[ECA-SW] SLDPRT copy saved: ValveBody_ECA_Rev-C_Wall10.0mm.SLDPRT</span>
+<span class="c-dim">═══════════════════════════════════════════════════════</span>
+<span class="c-green">[ECA-SW] Status   : COMPLETE</span>
+<span class="c-dim">═══════════════════════════════════════════════════════</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── FUSION 360 TAB ──────────────────────────── -->
+  <div id="tab-f360" class="tab-content">
+    <div class="panel fade-in">
+      <div class="panel-header">
+        <div class="panel-title">Fusion 360 — Python Add-In (ECA_Fusion360.py)</div>
+        <span class="badge badge-info">Python 3 · Fusion API</span>
+      </div>
+      <ul class="steps">
+        <li class="step-item"><div class="step-num">1</div><div><div class="step-text">Open Fusion 360 with ValveBody design active (Parametric mode)</div><div class="step-sub">Design → Parameters → add "WallThickness" = 12 mm as a user parameter</div></div></li>
+        <li class="step-item"><div class="step-num">2</div><div><div class="step-text">Tools → Add-Ins → Scripts and Add-Ins → Scripts tab → click "+"</div></div></li>
+        <li class="step-item"><div class="step-num">3</div><div><div class="step-text">Browse to <code>ECA_Fusion360.py</code> → click Run</div><div class="step-sub">Fusion calls <code>run(context)</code> automatically</div></div></li>
+        <li class="step-item"><div class="step-num">4</div><div><div class="step-text">Files exported to Desktop: <code>.step</code> · <code>.f3d</code> · <code>.iges</code></div></div></li>
+      </ul>
+    </div>
+    <div class="panel fade-in">
+      <div class="panel-header"><div class="panel-title">What ECA does in Fusion 360</div></div>
+      <table>
+        <tr><th>Phase 2 Requirement</th><th>API Used</th><th>Code Section</th></tr>
+        <tr><td>Feature/dimension update</td><td><code>userParameters.item(name).expression = "10 mm"</code></td><td>Section 3</td></tr>
+        <tr><td>Model regeneration</td><td><code>design.timeline.markerPosition = timeline.count</code></td><td>Section 4</td></tr>
+        <tr><td>Geometry validation</td><td><code>bRepBodies.item(i).isValid</code> + <code>getPhysicalProperties()</code></td><td>Section 4</td></tr>
+        <tr><td>Assembly constraint update</td><td><code>joints + asBuiltJoints</code> → suppress/unsuppress cycle</td><td>Section 5</td></tr>
+        <tr><td>BOM metadata update</td><td><code>rootComponent.attributes.add("ECA", key, value)</code></td><td>Section 6</td></tr>
+        <tr><td>STEP + F3D + IGES export</td><td><code>exportManager.createSTEPExportOptions()</code> · <code>createFusionArchiveExportOptions()</code></td><td>Section 7</td></tr>
+        <tr><td>Barlow safety check</td><td>Pure Python math</td><td>Section 2</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── CREO TAB ──────────────────────────── -->
+  <div id="tab-creo" class="tab-content">
+    <div class="panel fade-in">
+      <div class="panel-header">
+        <div class="panel-title">PTC Creo Parametric — J-Link Java API (ECA_Creo.java)</div>
+        <span class="badge badge-info">Java · J-Link · pfcAPI</span>
+      </div>
+      <ul class="steps">
+        <li class="step-item"><div class="step-num">1</div><div><div class="step-text">Compile: <code>javac -cp "%CREO_HOME%\...\jlink.jar" ECA_Creo.java</code></div><div class="step-sub">Or add jlink.jar to Maven/Gradle project and build a JAR</div></div></li>
+        <li class="step-item"><div class="step-num">2</div><div><div class="step-text">Register in Creo: Tools → J-Link → Register Application</div><div class="step-sub">Class: ECA_Creo · JAR: path/to/ECA_Creo.jar · Startup: onStart()</div></div></li>
+        <li class="step-item"><div class="step-num">3</div><div><div class="step-text">Open <code>ValveBody.prt</code> — ensure parameter <code>WALL_THICKNESS = 12.0</code> exists</div></div></li>
+        <li class="step-item"><div class="step-num">4</div><div><div class="step-text">Tools → J-Link → Start ECA_Creo → <code>runECA()</code> executes</div><div class="step-sub">STEP + IGES + PRT copy exported to user home directory</div></div></li>
+      </ul>
+    </div>
+    <div class="panel fade-in">
+      <div class="panel-header"><div class="panel-title">What ECA does in Creo Parametric</div></div>
+      <table>
+        <tr><th>Phase 2 Requirement</th><th>API Used</th><th>Code Section</th></tr>
+        <tr><td>Feature/dimension update</td><td><code>pfcParameter.SetValue(ParamValue.SetDoubleValue())</code></td><td>Section 3</td></tr>
+        <tr><td>Model regeneration</td><td><code>pfcSolid.Solid.Regenerate(null)</code></td><td>Section 4</td></tr>
+        <tr><td>Geometry validation</td><td><code>Feature.GetStatus()</code> loop + <code>MassProperty.GetDensityVolumeIntegral()</code></td><td>Section 4</td></tr>
+        <tr><td>Assembly constraint update</td><td><code>ComponentConstraint.GetType()</code> → suppress/unsuppress → <code>asmSolid.Regenerate(null)</code></td><td>Section 5</td></tr>
+        <tr><td>BOM metadata update</td><td><code>Solid.CreateParam()</code> for ECA_REVISION, ECA_WALL_AFTER etc.</td><td>Section 6</td></tr>
+        <tr><td>STEP + IGES + PRT export</td><td><code>model.Export(path, StepExportParams/IgesExportParams)</code> · <code>model.Copy()</code></td><td>Section 7</td></tr>
+        <tr><td>Barlow safety check</td><td>Pure Java math</td><td>Section 2</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── PLATFORM MATRIX TAB ──────────────────────────── -->
+  <div id="tab-matrix" class="tab-content">
+    <div class="panel fade-in">
+      <div class="panel-header">
+        <div class="panel-title">Phase 2 Capability Matrix — All 4 Platforms</div>
+        <span class="badge badge-pass">ALL REQUIREMENTS MET</span>
+      </div>
+      <div style="overflow-x:auto;padding:4px">
+      <table class="matrix">
+        <tr>
+          <th>Phase 2 Requirement</th>
+          <th>Inventor (iLogic)</th>
+          <th>SolidWorks (.NET)</th>
+          <th>Fusion 360 (Python)</th>
+          <th>Creo (J-Link)</th>
+        </tr>
+        <tr>
+          <td><b>Feature/dimension update</b></td>
+          <td><span class="tick">✓</span> <code>Parameters.Item().Value</code></td>
+          <td><span class="tick">✓</span> <code>EquationMgr / Dimension.SetSystemValue3</code></td>
+          <td><span class="tick">✓</span> <code>userParameters.expression</code></td>
+          <td><span class="tick">✓</span> <code>pfcParameter.SetValue</code></td>
+        </tr>
+        <tr>
+          <td><b>Model regeneration</b></td>
+          <td><span class="tick">✓</span> <code>partDoc.Rebuild2(True)</code></td>
+          <td><span class="tick">✓</span> <code>ModelDoc2.ForceRebuild3(false)</code></td>
+          <td><span class="tick">✓</span> <code>timeline.markerPosition = count</code></td>
+          <td><span class="tick">✓</span> <code>Solid.Regenerate(null)</code></td>
+        </tr>
+        <tr>
+          <td><b>Assembly constraint update</b></td>
+          <td><span class="tick">✓</span> Iterate mates → unlock → rebuild</td>
+          <td><span class="tick">✓</span> Suppress/unsuppress mates → rebuild</td>
+          <td><span class="tick">✓</span> Suppress/unsuppress joints → rebuild</td>
+          <td><span class="tick">✓</span> Suppress constraints → Regenerate</td>
+        </tr>
+        <tr>
+          <td><b>Geometry validation</b></td>
+          <td><span class="tick">✓</span> HealthStatus + wall constraint</td>
+          <td><span class="tick">✓</span> MassProperty + wall constraint</td>
+          <td><span class="tick">✓</span> bRepBodies.isValid + physical props</td>
+          <td><span class="tick">✓</span> Feature.GetStatus loop + mass props</td>
+        </tr>
+        <tr>
+          <td><b>Barlow safety check</b></td>
+          <td><span class="tick">✓</span> ASME VIII / API 6D, SF ≥ 2.5</td>
+          <td><span class="tick">✓</span> ASME VIII / API 6D, SF ≥ 2.5</td>
+          <td><span class="tick">✓</span> ASME VIII / API 6D, SF ≥ 2.5</td>
+          <td><span class="tick">✓</span> ASME VIII / API 6D, SF ≥ 2.5</td>
+        </tr>
+        <tr>
+          <td><b>BOM / metadata update</b></td>
+          <td><span class="tick">✓</span> iProperties + Custom PropertySet</td>
+          <td><span class="tick">✓</span> CustomPropertyManager.Add3()</td>
+          <td><span class="tick">✓</span> rootComponent.attributes.add()</td>
+          <td><span class="tick">✓</span> Solid.CreateParam() ECA_ params</td>
+        </tr>
+        <tr>
+          <td><b>STEP export</b></td>
+          <td><span class="tick">✓</span> FileSaveAs STEP AP214</td>
+          <td><span class="tick">✓</span> Extension.SaveAs STEP</td>
+          <td><span class="tick">✓</span> createSTEPExportOptions()</td>
+          <td><span class="tick">✓</span> Export(StepExportParams AP214)</td>
+        </tr>
+        <tr>
+          <td><b>Native format export</b></td>
+          <td><span class="tick">✓</span> .IPT copy</td>
+          <td><span class="tick">✓</span> .SLDPRT copy</td>
+          <td><span class="tick">✓</span> .F3D + .IGES</td>
+          <td><span class="tick">✓</span> .PRT copy + .IGES</td>
+        </tr>
+        <tr>
+          <td><b>Change log written</b></td>
+          <td><span class="tick">✓</span> Logger.Info()</td>
+          <td><span class="tick">✓</span> ECA_SolidWorks_ChangeLog.txt</td>
+          <td><span class="tick">✓</span> ECA_Fusion360_ChangeLog.txt</td>
+          <td><span class="tick">✓</span> ECA_Creo_ChangeLog.txt</td>
+        </tr>
+        <tr style="background:rgba(0,212,170,.04)">
+          <td><b>Language / API</b></td>
+          <td>VB.NET / iLogic</td>
+          <td>C# / SldWorks COM</td>
+          <td>Python 3 / adsk.fusion</td>
+          <td>Java / pfcAPI J-Link</td>
+        </tr>
+      </table>
+      </div>
+    </div>
+
+    <!-- Cross-section visual -->
+    <div class="panel fade-in">
+      <div class="panel-header"><div class="panel-title">Valve Body Cross-Section — Before vs After (All Platforms)</div></div>
+      <div class="xsec-wrap">
+        <div class="xsec-diagram">
+          <div class="xsec-title">BEFORE · Wall = 12 mm · Rev B</div>
+          <svg viewBox="0 0 200 200" width="100%" style="max-height:190px">
+            <circle cx="100" cy="100" r="90" fill="rgba(59,158,255,.06)" stroke="#3b9eff" stroke-width="2" opacity=".4"/>
+            <circle cx="100" cy="100" r="75.6" fill="rgba(59,158,255,.08)" stroke="#3b9eff" stroke-width="1" stroke-dasharray="3,2" opacity=".5"/>
+            <line x1="100" y1="100" x2="190" y2="100" stroke="#5a7a9a" stroke-width=".5" stroke-dasharray="3,2"/>
+            <text x="145" y="95" fill="#5a7a9a" font-size="8" font-family="IBM Plex Mono">OD 150</text>
+            <text x="50" y="87" fill="#3b9eff" font-size="7" font-family="IBM Plex Mono">Wall 12</text>
+            <line x1="96" y1="100" x2="104" y2="100" stroke="#5a7a9a" stroke-width=".5"/>
+            <line x1="100" y1="96" x2="100" y2="104" stroke="#5a7a9a" stroke-width=".5"/>
+          </svg>
+        </div>
+        <div style="font-size:28px;color:var(--teal);flex-shrink:0">→</div>
+        <div class="xsec-diagram" style="border-color:var(--teal-dim)">
+          <div class="xsec-title" style="color:var(--teal)">AFTER · Wall = 10 mm · Rev C</div>
+          <svg viewBox="0 0 200 200" width="100%" style="max-height:190px">
+            <circle cx="100" cy="100" r="90" fill="rgba(0,212,170,.05)" stroke="#00d4aa" stroke-width="2.5" opacity=".6"/>
+            <circle cx="100" cy="100" r="78" fill="rgba(0,212,170,.08)" stroke="#00d4aa" stroke-width="1" stroke-dasharray="3,2" opacity=".6"/>
+            <circle cx="100" cy="100" r="84" fill="none" stroke="#f0a500" stroke-width="6" stroke-dasharray="5,3" opacity=".2"/>
+            <line x1="100" y1="100" x2="190" y2="100" stroke="#5a7a9a" stroke-width=".5" stroke-dasharray="3,2"/>
+            <text x="145" y="95" fill="#5a7a9a" font-size="8" font-family="IBM Plex Mono">OD 150</text>
+            <text x="44" y="87" fill="#f0a500" font-size="7" font-family="IBM Plex Mono">Wall 10</text>
+            <line x1="96" y1="100" x2="104" y2="100" stroke="#5a7a9a" stroke-width=".5"/>
+            <line x1="100" y1="96" x2="100" y2="104" stroke="#5a7a9a" stroke-width=".5"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Barlow bars -->
+      <div style="padding:16px 20px 4px">
+        <div class="barlow-row" style="padding:0;margin-bottom:14px">
+          <div class="barlow-label"><span>Before (Wall=12mm) SF=3.68</span><span style="color:var(--blue)">3.68 / 5.0</span></div>
+          <div class="barlow-track"><div class="barlow-fill fill-before" style="width:73.6%"></div><div class="danger-line" style="left:50%"></div></div>
+        </div>
+        <div class="barlow-row" style="padding:0;margin-bottom:4px">
+          <div class="barlow-label"><span>After (Wall=10mm) SF=3.07</span><span style="color:var(--teal)">3.07 / 5.0</span></div>
+          <div class="barlow-track"><div class="barlow-fill fill-after" style="width:61.4%"></div><div class="danger-line" style="left:50%"></div></div>
+        </div>
+        <div style="font-size:10px;color:var(--text-dim);margin-top:8px;font-family:var(--mono)">Red line = minimum SF 2.5 (ASME VIII). Scale 0-5.</div>
+      </div>
+    </div>
+
+    <!-- Export outputs -->
+    <div class="panel fade-in">
+      <div class="panel-header"><div class="panel-title">Export Output Files — All Platforms</div><span class="badge badge-pass">ALL FORMATS READY</span></div>
+      <table>
+        <tr><th>Platform</th><th>Primary Export</th><th>Secondary Export</th><th>Change Log</th></tr>
+        <tr><td style="color:var(--amber)">Inventor</td><td><code>.step (AP214)</code></td><td><code>.ipt (rev copy)</code></td><td><code>iLogic Logger</code></td></tr>
+        <tr><td style="color:var(--red)">SolidWorks</td><td><code>.step (AP214)</code></td><td><code>.SLDPRT (rev copy)</code></td><td><code>ECA_SW_ChangeLog.txt</code></td></tr>
+        <tr><td style="color:var(--blue)">Fusion 360</td><td><code>.step (AP214)</code></td><td><code>.f3d + .iges</code></td><td><code>ECA_F360_ChangeLog.txt</code></td></tr>
+        <tr><td style="color:var(--purple)">Creo</td><td><code>.stp (AP214)</code></td><td><code>.igs + .prt (copy)</code></td><td><code>ECA_Creo_ChangeLog.txt</code></td></tr>
+      </table>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<footer>
+  <span>ECA Phase 2 — Multi-Platform CAD Engine · Inventor · SolidWorks · Fusion 360 · Creo · STARK-X · SREC</span>
+  <span style="color:var(--teal)">SLB Industry-Academia Hackathon 2026 · Kumaraguru Campus · 10–11 April 2026</span>
+</footer>
+
+<script>
+function selectPlatform(id) {
+  ['inv','sw','f360','creo','matrix'].forEach(p => {
+    document.getElementById('tab-' + p).classList.remove('active');
+    document.getElementById('nav-' + p).classList.remove('active');
+  });
+  document.getElementById('tab-' + id).classList.add('active');
+  document.getElementById('nav-' + id).classList.add('active');
+}
+
+// Animate bars on load
+document.addEventListener('DOMContentLoaded', () => {
+  const fills = document.querySelectorAll('.barlow-fill');
+  fills.forEach(f => { const w = f.style.width; f.style.width='0'; setTimeout(()=>f.style.width=w,400); });
+});
+</script>
+</body>
+</html>

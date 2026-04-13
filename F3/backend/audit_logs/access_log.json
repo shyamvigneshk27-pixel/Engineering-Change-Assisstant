@@ -1,0 +1,90 @@
+[
+  {
+    "timestamp": "2026-04-11T10:35:11.989971",
+    "user": "DemoUser",
+    "action": "initiate_EWR",
+    "resource": "reduce ValveStem's height into 200.00mm",
+    "status": "GRANTED",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Sa",
+    "details": "Started 5-Agent pipeline",
+    "session_hash": "faef7baa61e9"
+  },
+  {
+    "timestamp": "2026-04-11T10:49:10.900244",
+    "user": "DemoUser",
+    "action": "initiate_EWR",
+    "resource": "reduce the valvestem's height into 200.00mm",
+    "status": "GRANTED",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Sa",
+    "details": "Started 5-Agent pipeline",
+    "session_hash": "908ec417856b"
+  },
+  {
+    "timestamp": "2026-04-11T10:57:55.565856",
+    "user": "DemoUser",
+    "action": "initiate_EWR",
+    "resource": "Reduce wall thickness of Valve Body by 2mm for wei",
+    "status": "GRANTED",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Sa",
+    "details": "Started 5-Agent pipeline",
+    "session_hash": "756159823109"
+  },
+  {
+    "timestamp": "2026-04-11T11:33:46.562263",
+    "user": "DemoUser",
+    "action": "initiate_EWR",
+    "resource": "Increase Gate Stem diameter to 28mm",
+    "status": "GRANTED",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Sa",
+    "details": "Started 5-Agent pipeline",
+    "session_hash": "628f941e096a"
+  },
+  {
+    "timestamp": "2026-04-11T11:38:06.937332",
+    "user": "DemoUser",
+    "action": "initiate_EWR",
+    "resource": "Reduce wall thickness of Valve Body by 2mm for wei",
+    "status": "GRANTED",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Sa",
+    "details": "Started 5-Agent pipeline",
+    "session_hash": "af7f61a702a7"
+  },
+  {
+    "timestamp": "2026-04-11T11:49:23.777607",
+    "user": "DemoUser",
+    "action": "initiate_EWR",
+    "resource": "Reduce wall thickness of Valve Body by 2mm for wei",
+    "status": "GRANTED",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Sa",
+    "details": "Started 5-Agent pipeline",
+    "session_hash": "9941d519c11e"
+  },
+  {
+    "timestamp": "2026-04-11T11:51:46.518308",
+    "user": "DemoUser",
+    "action": "initiate_EWR",
+    "resource": "Reduce wall thickness of Valve Body by 2mm for wei",
+    "status": "GRANTED",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Sa",
+    "details": "Started 5-Agent pipeline",
+    "session_hash": "c470e4d19181"
+  },
+  {
+    "timestamp": "2026-04-11T12:16:57.637360",
+    "user": "DemoUser",
+    "action": "initiate_EWR",
+    "resource": "Reduce wall thickness of Valve Body by 2mm for wei",
+    "status": "GRANTED",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Sa",
+    "details": "Started 5-Agent pipeline",
+    "session_hash": "bf4a2a5f1672"
+  }
+]

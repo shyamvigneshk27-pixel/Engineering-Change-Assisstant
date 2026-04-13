@@ -1,0 +1,9 @@
+flask
+flask-cors
+google-generativeai
+google-genai
+reportlab
+matplotlib
+python-dotenv
+numpy
+supabase

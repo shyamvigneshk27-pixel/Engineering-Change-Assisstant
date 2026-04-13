@@ -1,0 +1,5 @@
+{
+  "name": "ECA — Engineering Change Assistant",
+  "description": "AI-powered precision tool for SLB engineers to analyze engineering change requests with CAD validation and impact assessment.",
+  "requestFramePermissions": []
+}
