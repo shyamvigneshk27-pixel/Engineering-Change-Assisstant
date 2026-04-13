@@ -19,7 +19,12 @@ class Agent3CADExecutor:
     description = "Modifies FreeCAD model, exports STEP, renders before/after"
 
     def __init__(self):
-        self.freecad_cmd = os.getenv("FREECAD_CMD", r"C:\Program Files\FreeCAD 1.1\bin\freecadcmd.exe")
+        if os.name == "nt":  # Windows
+            default_cmd = r"C:\Program Files\FreeCAD 1.1\bin\freecadcmd.exe"
+        else:  # Linux/Docker
+            default_cmd = "FreeCADCmd"
+            
+        self.freecad_cmd = os.getenv("FREECAD_CMD", default_cmd)
 
     def run(self, parsed: dict, parts_db: dict) -> dict:
         start = time.time()
