@@ -437,4 +437,5 @@ if __name__ == "__main__":
     print("  FreeCAD:", "YES" if os.path.isfile(os.getenv("FREECAD_CMD","")) else "NO (simulation mode)")
     print("="*60)
     print("  http://localhost:5000\n")
-    app.run(debug=False, port=5000, threaded=True)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=False, threaded=True)
+    

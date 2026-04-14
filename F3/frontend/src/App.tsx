@@ -114,7 +114,7 @@ export default function App() {
     setShowResults(false);
     setShowExhaustedModal(false);
     try {
-      const API_BASE_URL = "https://engineering-change-assisstant-1.onrender.com";
+      const API_BASE_URL = "https://eca-slb.onrender.com";
       const res = await fetch(`${API_BASE_URL}/api/analyze`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
