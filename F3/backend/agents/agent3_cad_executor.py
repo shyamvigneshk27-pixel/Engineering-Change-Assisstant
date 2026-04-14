@@ -196,90 +196,92 @@ stem     = doc.getObject("ValveStem")
 handle   = doc.getObject("Handle")
 
     # Also check for simple model fallback
-    if not vb_inner:
-        vb_inner = doc.getObject("InnerDiameter") or doc.getObject("InnerCylinder")
-        vb_outer = doc.getObject("OuterDiameter") or doc.getObject("OuterCylinder")
+if not vb_inner:
+    vb_inner = doc.getObject("InnerDiameter") or doc.getObject("InnerCylinder")
+    vb_outer = doc.getObject("OuterDiameter") or doc.getObject("OuterCylinder")
 
-    feat = "{feature_name}".lower()
-    try:
-        val = float({new_value})
-    except:
-        val = 0.0
+feat = "{feature_name}".lower()
+try:
+    val = float({new_value})
+except:
+    val = 0.0
 
-    # --- SECTION A: Universal Property Sync (Height/Length) ---
-    # This runs even if vb_inner/outer are not the main focus
-    if "height" in feat or "length" in feat:
-        print(f"  MODE: Height/Length Adjustment -> {{val}}")
-        targets = ["PipeRight", "PipeLeft", "ValveBody", "Bonnet", "Stem", "Cap", "Cylinder"]
-        for obj in doc.Objects:
-            if any(t.lower() in obj.Name.lower() or t.lower() in obj.Label.lower() for t in targets):
-                for attr in ["Height", "Length"]:
-                    if hasattr(obj, attr):
-                        try:
-                            setattr(obj, attr, FreeCAD.Units.Quantity(f"{{val}} mm"))
-                            print(f"    Synced {{obj.Name}}.{{attr}} -> {{val}}mm")
-                        except: pass
-    
-    # --- SECTION B: Radius/Diameter Logic ---
-    elif vb_outer and vb_inner:
-        inner_r = float(vb_inner.Radius)
-        outer_r = float(vb_outer.Radius)
-        new_inner_r, new_outer_r = inner_r, outer_r
+# --- SECTION A: Universal Property Sync (Height/Length) ---
+# This runs even if vb_inner/outer are not the main focus
+if "height" in feat or "length" in feat:
+    print(f"  MODE: Height/Length Adjustment -> {{val}}")
+    targets = ["PipeRight", "PipeLeft", "ValveBody", "Bonnet", "Stem", "Cap", "Cylinder"]
+    for obj in doc.Objects:
+        if any(t.lower() in obj.Name.lower() or t.lower() in obj.Label.lower() for t in targets):
+            for attr in ["Height", "Length"]:
+                if hasattr(obj, attr):
+                    try:
+                        setattr(obj, attr, FreeCAD.Units.Quantity(f"{{val}} mm"))
+                        print(f"    Synced {{obj.Name}}.{{attr}} -> {{val}}mm")
+                    except: pass
 
-        if "wall" in feat or "thickness" in feat:
-            new_outer_r = inner_r + val
-            print(f"  MODE: Smart Wall Thickness -> {{val}}")
-        elif "stem" in feat and stem:
-            stem.Radius = FreeCAD.Units.Quantity(f"{{val / 2}} mm")
-        elif "inner" in feat or "id" in feat or "bore" in feat:
-            new_inner_r = val / 2
-        elif "outer" in feat or "od" in feat:
-            new_outer_r = val / 2
-        else:
-            if val > (outer_r * 0.8) and val < (outer_r * 1.5): new_outer_r = val / 2
-            elif val < 50: new_inner_r = outer_r - val
-            else: new_inner_r = val / 2
+# --- SECTION B: Radius/Diameter Logic ---
+elif vb_outer and vb_inner:
+    inner_r = float(vb_inner.Radius)
+    outer_r = float(vb_outer.Radius)
+    new_inner_r, new_outer_r = inner_r, outer_r
 
-        if new_inner_r <= 0: new_inner_r = inner_r
-        if new_outer_r <= new_inner_r: new_outer_r = new_inner_r + 5.0
+    if "wall" in feat or "thickness" in feat:
+        new_outer_r = inner_r + val
+        print(f"  MODE: Smart Wall Thickness -> {{val}}")
+    elif "stem" in feat and stem:
+        stem.Radius = FreeCAD.Units.Quantity(f"{{val / 2}} mm")
+    elif "inner" in feat or "id" in feat or "bore" in feat:
+        new_inner_r = val / 2
+    elif "outer" in feat or "od" in feat:
+        new_outer_r = val / 2
+    else:
+        if val > (outer_r * 0.8) and val < (outer_r * 1.5): new_outer_r = val / 2
+        elif val < 50: new_inner_r = outer_r - val
+        else: new_inner_r = val / 2
 
-        for o_name in ["ValveBody_Outer", "PipeLeft_Outer", "PipeRight_Outer", "OuterDiameter", "OuterCylinder"]:
-            o = doc.getObject(o_name)
-            if o and hasattr(o, "Radius"): o.Radius = FreeCAD.Units.Quantity(f"{{new_outer_r}} mm")
-        for o_name in ["InnerDiameter", "ValveBody_Inner", "PipeLeft_Inner", "PipeRight_Inner", "InnerCylinder", "Bore"]:
-            o = doc.getObject(o_name)
-            if o and hasattr(o, "Radius"): o.Radius = FreeCAD.Units.Quantity(f"{{new_inner_r}} mm")
-        if disc: disc.Radius = FreeCAD.Units.Quantity(f"{{max(5.0, new_inner_r - 1.5)}} mm")
-        if stem:
-            stem.Height = (new_outer_r * 2) + 60
-            stem.Placement.Base.y = -(new_outer_r + 30)
-        if handle:
-            handle.Placement.Base.y = new_outer_r + 25
+    if new_inner_r <= 0: new_inner_r = inner_r
+    if new_outer_r <= new_inner_r: new_outer_r = new_inner_r + 5.0
 
-    doc.recompute()
-    
-    # Export
-    shapes = [o for o in doc.Objects if hasattr(o, "Shape") and not o.Shape.isNull()
-              and o.TypeId not in ("Part::Cylinder", "Part::Box")]
-    if not shapes: shapes = [o for o in doc.Objects if hasattr(o, "Shape") and not o.Shape.isNull()]
-    if shapes:
-        Part.export(shapes, "{step_path}")
-        print("STEP_EXPORTED_OK")
+    for o_name in ["ValveBody_Outer", "PipeLeft_Outer", "PipeRight_Outer", "OuterDiameter", "OuterCylinder"]:
+        o = doc.getObject(o_name)
+        if o and hasattr(o, "Radius"): o.Radius = FreeCAD.Units.Quantity(f"{{new_outer_r}} mm")
+    for o_name in ["InnerDiameter", "ValveBody_Inner", "PipeLeft_Inner", "PipeRight_Inner", "InnerCylinder", "Bore"]:
+        o = doc.getObject(o_name)
+        if o and hasattr(o, "Radius"): o.Radius = FreeCAD.Units.Quantity(f"{{new_inner_r}} mm")
+    if disc: disc.Radius = FreeCAD.Units.Quantity(f"{{max(5.0, new_inner_r - 1.5)}} mm")
+    if stem:
+        stem.Height = (new_outer_r * 2) + 60
+        stem.Placement.Base.y = -(new_outer_r + 30)
+    if handle:
+        handle.Placement.Base.y = new_outer_r + 25
 
-    doc.save()
-    print("FREECAD_COMPLETE")
-    os._exit(0)
+doc.recompute()
+
+# Export
+shapes = [o for o in doc.Objects if hasattr(o, "Shape") and not o.Shape.isNull()
+          and o.TypeId not in ("Part::Cylinder", "Part::Box")]
+if not shapes: shapes = [o for o in doc.Objects if hasattr(o, "Shape") and not o.Shape.isNull()]
+if shapes:
+    Part.export(shapes, "{step_path}")
+    print("STEP_EXPORTED_OK")
+
+doc.save()
+print("FREECAD_COMPLETE")
+os._exit(0)
 
 print("FREECAD_COMPLETE")
 os._exit(0)
 '''
         stdout = self._exec_freecad_script(script)
-        success = "FREECAD_COMPLETE" in stdout
-        step_exported = "STEP_EXPORTED_OK" in stdout
+        
+        # FreeCAD swallows prints on some OS, so rely on file creation
+        step_exported = os.path.exists(step_path)
+        success = step_exported
 
         return {
             "status": "success" if success else "error",
-            "cad_method": "simulation",
+            "cad_method": "freecad",
             "step_exported": step_exported,
             "step_file": step_path if step_exported else None,
             "freecad_log": stdout[-500:] if stdout else ""

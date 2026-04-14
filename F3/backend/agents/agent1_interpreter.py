@@ -38,7 +38,11 @@ Parts database:
 
 Change request: "{nl_request}"
 
-Return ONLY valid JSON (no markdown, no explanation):
+Extract the intent and parameters from the change request to construct a valid JSON response.
+Return ONLY valid JSON matching this schema exactly. Do NOT use markdown. Do NOT use code blocks. Replace the placeholder values with the actual extracted variables.
+IMPORTANT: The numerical values 0.0 in the schema are PLACEHOLDERS. You MUST replace them with ACTUAL extracted or calculated numbers based on the user's Change Request!
+
+Schema:
 {{
   "understood_request": "professional restatement",
   "change_intent": "reduction|increase|replacement|cosmetic|structural",
@@ -47,12 +51,12 @@ Return ONLY valid JSON (no markdown, no explanation):
   "changes": [
     {{
       "part_id": "PART-XXX",
-      "parameter": "exact key from dimensions dict",
-      "cad_feature": "matching key from cad_feature_map",
-      "current_value": 12.0,
-      "new_value": 10.0,
-      "delta": -2.0,
-      "delta_pct": -16.67,
+      "parameter": "exact key from dimensions dict. e.g outer_diameter_mm",
+      "cad_feature": "matching key from cad_feature_map. e.g OuterDiameter",
+      "current_value": 0.0,
+      "new_value": 0.0,
+      "delta": 0.0,
+      "delta_pct": 0.0,
       "unit": "mm"
     }}
   ],

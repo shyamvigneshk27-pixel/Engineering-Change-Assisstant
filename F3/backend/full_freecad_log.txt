@@ -1,0 +1,92 @@
+FreeCAD 1.1.0, Libs: 1.1.0R20260325 (Git shallow)
+(C) 2001-2026 FreeCAD contributors
+FreeCAD is free and open-source software licensed under the terms of LGPL2+ license.
+
+Importing project files......
+						(2 %)	
+						(5 %)	
+						(7 %)	
+						(10 %)	
+						(12 %)	
+						(15 %)	
+						(17 %)	
+						(20 %)	
+						(23 %)	
+						(25 %)	
+						(28 %)	
+						(30 %)	
+						(33 %)	
+						(35 %)	
+						(38 %)	
+						(41 %)	
+						(43 %)	
+						(46 %)	
+						(48 %)	
+						(51 %)	
+						(53 %)	
+						(56 %)	
+						(58 %)	
+						(61 %)	
+						(64 %)	
+						(66 %)	
+						(69 %)	
+						(71 %)	
+						(74 %)	
+						(76 %)	
+						(79 %)	
+						(82 %)	
+						(84 %)	
+						(87 %)	
+						(89 %)	
+						(92 %)	
+						(94 %)	
+						(97 %)	
+						(100 %)	
+								
+Postprocessing......
+						(100 %)	
+								
+Recompute......
+						(2 %)	
+						(5 %)	
+						(8 %)	
+						(11 %)	
+						(14 %)	
+						(17 %)	
+						(20 %)	
+						(23 %)	
+						(26 %)	
+						(29 %)	
+						(32 %)	
+						(35 %)	
+						(38 %)	
+						(41 %)	
+						(44 %)	
+						(47 %)	
+						(50 %)	
+						(52 %)	
+						(55 %)	
+						(58 %)	
+						(61 %)	
+						(64 %)	
+						(67 %)	
+						(70 %)	
+						(73 %)	
+						(76 %)	
+						(79 %)	
+						(82 %)	
+						(85 %)	
+						(88 %)	
+						(91 %)	
+						(94 %)	
+						(97 %)	
+						(100 %)	
+								
+*******************************************************************
+******        Statistics on Transfer (Write)                 ******
+
+*******************************************************************
+******        Transfer Mode = 0  I.E.  As Is       ******
+******        Transferring Shape, ShapeType = 0                      ******
+** WorkSession : Sending all data
+ Step File Name : C:/Users/New/Downloads/ECA/Engineering-Change-Assisstant/F3/backend/cad_models/PART-001_updated.step(480 ents)  Write  Done
