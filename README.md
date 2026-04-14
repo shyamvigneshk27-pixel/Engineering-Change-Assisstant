@@ -5,7 +5,40 @@ ECA is a high-fidelity, AI-driven assistant designed to manage and automate the 
 ![ECA Dashboard](https://img.shields.io/badge/Stack-FastAPI%20%7C%20FreeCAD%20%7C%20Gemini-blue)
 
 
-Important: If the api key exhausted ,please make sure to replace the gemini api key in F3/backend/.env
+**Important:** If the api key exhausted ,please make sure to replace the gemini api key in F3/backend/.env
+Also , Based on the parts.json database in the system, there are 4 configurable parts that you can request changes for. Here are the parts along with the dimensions that the system currently supports changing:
+
+**Valve Body (PART-001)**
+
+Wall Thickness (e.g., wall_thickness_mm)
+Outer Diameter (e.g., outer_diameter_mm)
+Inner Diameter (e.g., inner_diameter_mm)
+Length (e.g., length_mm)
+
+**End Cap (PART-002)**
+
+Wall Thickness
+Outer Diameter
+Inner Diameter
+Length
+
+**Gate Stem (PART-003)**
+
+Diameter (e.g., diameter_mm)
+Length (e.g., length_mm)
+Thread Pitch (e.g., thread_pitch_mm)
+
+**Bonnet (PART-004)**
+
+Wall Thickness
+Outer Diameter
+Bore Diameter (e.g., bore_diameter_mm)
+Height (e.g., height_mm)
+Instead of asking for a change to a "pipe", you probably want to target the Valve Body, End Cap, or Bonnet depending on exactly what you need to change.
+**you could say:**
+
+"Increase the outer diameter of the Valve Body to 100 mm."
+
 ## ✨ Core Features
 
 - **🧠 Intelligent Interpretation**: Uses Google Gemini to parse human engineering requests into structured metadata.
