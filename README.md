@@ -4,6 +4,8 @@ ECA is a high-fidelity, AI-driven assistant designed to manage and automate the 
 
 ![ECA Dashboard](https://img.shields.io/badge/Stack-FastAPI%20%7C%20FreeCAD%20%7C%20Gemini-blue)
 
+
+Important: If the api key exhausted ,please make sure to replace the gemini api key in F3/backend/.env
 ## ✨ Core Features
 
 - **🧠 Intelligent Interpretation**: Uses Google Gemini to parse human engineering requests into structured metadata.
@@ -63,21 +65,6 @@ python app.py
 # Open Frontend
 # Open F3/frontend/index.html in your browser
 ```
-
----
-
-## ☁️ Deployment Guide
-
-### Backend (Render)
-1. **New Web Service**: Connect your GitHub repo.
-2. **Runtime**: Select **Docker**.
-3. **Environment**: Add `SUPABASE_URL`, `SUPABASE_KEY`, and `GEMINI_API_KEY`.
-4. **Build**: Render will automatically use the `F3/backend/Dockerfile`.
-
-### Frontend (Vercel)
-1. **New Project**: Connect your repo and set the root directory to `F3/frontend`.
-2. **Environment Variable**: Add `BACKEND_URL` pointing to your Render service.
-
 ---
 
 ## 🏗️ Repository Structure
